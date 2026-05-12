@@ -11,6 +11,7 @@ from src.database import (
     get_all_sessions
 )
 from src.rag import conversational_rag
+from src.rag import stream_response
 from src.utils.citations import extract_sources
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
@@ -76,14 +77,22 @@ def run_app():
         st.session_state.chat_history.append(
             HumanMessage(content=user_input)
         )
-        response, sources = conversational_rag(
+        stream, sources = stream_response(
             user_input,
             st.session_state.chat_history
         )
-        # Show AI response
-        st.chat_message("assistant").write(
-            response.content
-        )
+
+        assistant_response = ""
+
+        with st.chat_message("assistant"):
+            response_placeholder = st.empty()
+            for chunk in stream:
+                if chunk.content:
+                    assistant_response += chunk.content
+                    response_placeholder.markdown(
+                        assistant_response + "▌"
+                    )
+            response_placeholder.markdown(assistant_response)
 
         # Show sources
         formatted_sources = extract_sources(sources)
@@ -102,9 +111,9 @@ def run_app():
         save_message(
             session_id,
             "ai",
-            response.content
+            assistant_response
         )
 
         st.session_state.chat_history.append(
-            AIMessage(content=response.content)
+            AIMessage(content=assistant_response)
         )

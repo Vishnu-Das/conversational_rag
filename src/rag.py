@@ -22,7 +22,7 @@ retriever = vectorstore.as_retriever(
 )
 
 llm = ChatOpenAI(
-    model="gpt-3.5-turbo"
+    model="gpt-3.5-turbo",  streaming=True
 )
 
 prompt = ChatPromptTemplate.from_messages([
@@ -64,6 +64,22 @@ Rules:
     )
 ])
 
+def stream_response(
+    user_input: str,
+    chat_history: List[BaseMessage]
+):
+    docs = retriever.invoke(user_input)
+    context = "\n\n".join([
+        doc.page_content for doc in docs
+    ])
+    messages = prompt.invoke({
+        "input": user_input,
+        "chat_history": chat_history,
+        "context": context
+    })
+    stream = llm.stream(messages)
+    return stream, docs
+
 
 def conversational_rag(
     user_input: str,
@@ -82,6 +98,6 @@ def conversational_rag(
         "context": context
     })
 
-    response = llm.invoke(messages)
+    response = llm.stream(messages)
 
     return response, docs
