@@ -1,0 +1,112 @@
+import uuid, os
+import streamlit as st
+from langchain_core.messages import (
+    HumanMessage,
+    AIMessage,
+    SystemMessage
+)
+from src.database import (
+    save_message,
+    load_chat_history,
+    get_all_sessions
+)
+from src.rag import conversational_rag
+
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
+def run_app():
+
+    st.set_page_config(
+        page_title="Conversational AI",
+        page_icon="🤖",
+        layout="wide"
+    )
+
+    st.title("Conversational AI with Memory")
+
+    # Sidebar
+    st.sidebar.header("Chats")
+
+    if "session_id" not in st.session_state:
+
+        st.session_state.session_id = str(uuid.uuid4())
+
+        st.session_state.chat_history = []
+
+    if st.sidebar.button("New Chat"):
+
+        st.session_state.session_id = str(uuid.uuid4())
+
+        st.session_state.chat_history = []
+
+    st.sidebar.markdown("### Previous Chats")
+
+    for sid in get_all_sessions():
+
+        if st.sidebar.button(f"Chat {sid[:8]}"):
+
+            st.session_state.session_id = sid
+
+            st.session_state.chat_history = load_chat_history(sid)
+
+    session_id = st.session_state.session_id
+
+    # Initial load
+    if not st.session_state.chat_history:
+
+        st.session_state.chat_history = load_chat_history(
+            session_id
+        )
+
+    # Render history
+    for msg in st.session_state.chat_history:
+
+        if isinstance(msg, HumanMessage):
+
+            st.chat_message("user").write(msg.content)
+
+        elif isinstance(msg, AIMessage):
+
+            st.chat_message("assistant").write(msg.content)
+
+        elif isinstance(msg, SystemMessage):
+
+            st.chat_message("system").write(msg.content)
+
+    # User input
+    user_input = st.chat_input(
+        "Ask a question about the PDF..."
+    )
+
+    if user_input:
+
+        st.chat_message("user").write(user_input)
+
+        save_message(
+            session_id,
+            "human",
+            user_input
+        )
+
+        st.session_state.chat_history.append(
+            HumanMessage(content=user_input)
+        )
+
+        response, sources = conversational_rag(
+            user_input,
+            st.session_state.chat_history
+        )
+
+        st.chat_message("assistant").write(
+            response.content
+        )
+
+        save_message(
+            session_id,
+            "ai",
+            response.content
+        )
+
+        st.session_state.chat_history.append(
+            AIMessage(content=response.content)
+        )
