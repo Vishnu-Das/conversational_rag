@@ -4,32 +4,43 @@ A production-style Conversational AI application built using LangChain, OpenAI, 
 
 This project enables users to chat with PDF documents using Retrieval Augmented Generation (RAG) while maintaining persistent conversational memory across sessions.
 
+The application supports:
+
+* multi-document PDF ingestion
+* semantic retrieval
+* streaming AI responses
+* source citations
+* persistent chat memory
+* modular RAG architecture
+
 ---
 
 # Features
 
-- Conversational chat interface using Streamlit
-- Retrieval Augmented Generation (RAG)
-- Persistent conversational memory using SQLite
-- Semantic search over PDF documents
-- Multi-session chat support
-- Persistent vector database using ChromaDB
-- OpenAI embeddings + LLM integration
-- Multi-document PDF support
-- Separate ingestion pipeline using `ingest.py`
-- Production-style modular architecture
+* Conversational chat interface using Streamlit
+* Retrieval Augmented Generation (RAG)
+* Persistent conversational memory using SQLite
+* Semantic search over PDF documents
+* Streaming responses like ChatGPT
+* Source citations with page references
+* Multi-session chat support
+* Persistent vector database using ChromaDB
+* OpenAI embeddings + LLM integration
+* Multi-document PDF support
+* Separate ingestion pipeline using `ingest.py`
+* Production-style modular architecture
 
 ---
 
 # Tech Stack
 
-- Python
-- Streamlit
-- LangChain
-- OpenAI API
-- ChromaDB
-- SQLite
-- UV Package Manager
+* Python
+* Streamlit
+* LangChain
+* OpenAI API
+* ChromaDB
+* SQLite
+* UV Package Manager
 
 ---
 
@@ -53,6 +64,10 @@ conversational_rag/
 │   ├── database.py
 │   ├── ingest.py
 │   │
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── citations.py
+│   │
 │   └── data/
 │       └── *.pdf
 ```
@@ -63,17 +78,18 @@ conversational_rag/
 
 This project follows a production-style RAG architecture by separating:
 
-- Document ingestion pipeline
-- Vector database creation
-- Conversational runtime
-- Persistent memory layer
+* document ingestion
+* vector indexing
+* conversational runtime
+* memory persistence
+* citation formatting
 
 This improves:
 
-- startup performance
-- scalability
-- maintainability
-- extensibility
+* startup performance
+* scalability
+* maintainability
+* extensibility
 
 ---
 
@@ -148,7 +164,39 @@ For each user query:
 
 ---
 
-## 6. Conversational Memory
+## 6. Streaming Responses
+
+Responses are streamed token-by-token for a real-time conversational experience similar to ChatGPT.
+
+Implemented using:
+
+```python
+ChatOpenAI(streaming=True)
+```
+
+and Streamlit dynamic rendering.
+
+---
+
+## 7. Source Citations
+
+Retrieved document sources are displayed alongside responses.
+
+Citations include:
+
+* source document
+* page number
+* chunk preview
+
+Citation formatting logic is separated into:
+
+```text
+src/utils/citations.py
+```
+
+---
+
+## 8. Conversational Memory
 
 Chat history is stored in SQLite:
 
@@ -281,40 +329,39 @@ http://localhost:8501
 
 # Example Questions
 
-- "Summarize the resume"
-- "What skills are mentioned?"
-- "What projects are listed?"
-- "Explain the experience section"
-- "What technologies are used?"
-- "Who am I?" (conversation-aware memory)
+* "Summarize the resume"
+* "What skills are mentioned?"
+* "What projects are listed?"
+* "Explain the experience section"
+* "What technologies are used?"
+* "Who am I?" (conversation-aware memory)
 
 ---
 
 # Current Limitations
 
-- No streaming responses
-- No authentication
-- No metadata filtering
-- Local deployment only
-- No reranking pipeline
-- No hybrid search
+* No authentication
+* No metadata filtering
+* No hybrid retrieval
+* No reranking pipeline
+* Local deployment only
 
 ---
 
 # Future Improvements
 
-- Streaming token responses
-- Hybrid search
-- Semantic chunking
-- Multi-query retrieval
-- Reranking
-- Source citations
-- Docker deployment
-- Cloud deployment
-- Multi-user authentication
-- Long-term memory
-- Conversation summarization
-- Agentic workflows
+* History-aware retrieval
+* Hybrid search
+* Semantic chunking
+* Multi-query retrieval
+* Reranking
+* Docker deployment
+* FastAPI backend
+* Cloud deployment
+* Multi-user authentication
+* Long-term memory
+* Agentic workflows
+* Evaluation pipeline
 
 ---
 
@@ -322,16 +369,18 @@ http://localhost:8501
 
 This project demonstrates:
 
-- Retrieval Augmented Generation (RAG)
-- Embeddings
-- Vector Databases
-- Semantic Search
-- Conversational Memory
-- Prompt Engineering
-- LangChain Pipelines
-- Persistent Chat Storage
-- Production-style ingestion pipelines
-- Modular AI application architecture
+* Retrieval Augmented Generation (RAG)
+* Embeddings
+* Vector Databases
+* Semantic Search
+* Conversational Memory
+* Streaming LLM Responses
+* Source Citation Systems
+* Prompt Engineering
+* LangChain Pipelines
+* Persistent Chat Storage
+* Production-style ingestion pipelines
+* Modular AI application architecture
 
 ---
 
@@ -345,8 +394,16 @@ MIT License
 
 Built using:
 
-- LangChain
-- Streamlit
-- OpenAI
-- ChromaDB
-- UV Package Manager
+* LangChain
+* Streamlit
+* OpenAI
+* ChromaDB
+* UV Package Manager
+
+---
+
+# References & Inspiration
+
+This project architecture and improvements were inspired by modern RAG engineering patterns and production-ready conversational AI systems. ([Go Packages][1])
+
+[1]: https://pkg.go.dev/github.com/zgsm-ai/chat-rag?utm_source=chatgpt.com "chat-rag command - github.com/zgsm-ai/chat-rag - Go Packages"
