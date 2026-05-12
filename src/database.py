@@ -73,3 +73,24 @@ def get_all_sessions() -> List[str]:
     """)
 
     return [row[0] for row in cursor.fetchall()]
+
+def get_chat_preview(session_id: str) -> str:
+    cursor.execute(
+        '''
+        SELECT content
+        FROM chat_history
+        WHERE session_id = ?
+        AND role = 'human'
+        ORDER BY rowid ASC
+        LIMIT 1
+        ''',
+        (session_id,)
+    )
+    row = cursor.fetchone()
+
+    if row:
+        preview = row[0][:30]
+        if len(row[0]) > 30:
+            preview += "..."
+        return preview
+    return "New Chat"

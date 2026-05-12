@@ -8,7 +8,8 @@ from langchain_core.messages import (
 from src.database import (
     save_message,
     load_chat_history,
-    get_all_sessions
+    get_all_sessions,
+    get_chat_preview
 )
 from src.rag import conversational_rag
 from src.rag import stream_response
@@ -24,7 +25,24 @@ def run_app():
         layout="wide"
     )
 
-    st.title("Conversational AI with Memory")
+    st.markdown(
+    """
+    <style>
+
+    div.stButton > button {
+        width: 100%;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+    st.title("Agent By Vishnu Das")
 
     # Sidebar
     st.sidebar.header("Chats")
@@ -40,7 +58,8 @@ def run_app():
     st.sidebar.markdown("### Previous Chats")
 
     for sid in get_all_sessions():
-        if st.sidebar.button(f"Chat {sid[:8]}"):
+        preview = get_chat_preview(sid)
+        if st.sidebar.button(preview, key=sid):
             st.session_state.session_id = sid
             st.session_state.chat_history = load_chat_history(sid)
 
