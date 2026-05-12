@@ -15,9 +15,9 @@ This project enables users to chat with PDF documents using Retrieval Augmented 
 - Multi-session chat support
 - Persistent vector database using ChromaDB
 - OpenAI embeddings + LLM integration
-- Modular project structure
-- Support for multiple PDFs
-- Production-style architecture
+- Multi-document PDF support
+- Separate ingestion pipeline using `ingest.py`
+- Production-style modular architecture
 
 ---
 
@@ -51,6 +51,7 @@ conversational_rag/
 │   ├── rag.py
 │   ├── vectorstore.py
 │   ├── database.py
+│   ├── ingest.py
 │   │
 │   └── data/
 │       └── *.pdf
@@ -58,9 +59,27 @@ conversational_rag/
 
 ---
 
+# Architecture Overview
+
+This project follows a production-style RAG architecture by separating:
+
+- Document ingestion pipeline
+- Vector database creation
+- Conversational runtime
+- Persistent memory layer
+
+This improves:
+
+- startup performance
+- scalability
+- maintainability
+- extensibility
+
+---
+
 # How It Works
 
-## 1. Document Loading
+## 1. Document Ingestion
 
 PDF documents are loaded from:
 
@@ -69,6 +88,19 @@ src/data/
 ```
 
 using LangChain `DirectoryLoader`.
+
+The ingestion pipeline:
+
+1. Loads PDFs
+2. Splits documents into chunks
+3. Generates embeddings
+4. Stores vectors in ChromaDB
+
+This process is handled separately by:
+
+```text
+src/ingest.py
+```
 
 ---
 
@@ -195,21 +227,9 @@ OPENAI_API_KEY=your_openai_api_key
 
 ---
 
-# Running the Application
+# Running the Project
 
-```bash
-uv run streamlit run app.py
-```
-
-Application will start on:
-
-```text
-http://localhost:8501
-```
-
----
-
-# Adding PDFs
+## Step 1 — Add PDFs
 
 Place PDF files inside:
 
@@ -229,23 +249,33 @@ src/data/
 
 ---
 
-# Rebuilding the Vector Database
+## Step 2 — Run Document Ingestion
 
-If new PDFs are added, delete the existing ChromaDB directory.
-
-### Windows
-
-```powershell
-rmdir /s chroma_db
-```
-
-### Linux / Mac
+Generate embeddings and build the vector database:
 
 ```bash
-rm -rf chroma_db
+uv run python src/ingest.py
 ```
 
-Then rerun the application.
+This creates:
+
+```text
+chroma_db/
+```
+
+---
+
+## Step 3 — Start the Application
+
+```bash
+uv run streamlit run app.py
+```
+
+Application will start on:
+
+```text
+http://localhost:8501
+```
 
 ---
 
@@ -265,8 +295,9 @@ Then rerun the application.
 - No streaming responses
 - No authentication
 - No metadata filtering
-- Re-indexing required for new documents
 - Local deployment only
+- No reranking pipeline
+- No hybrid search
 
 ---
 
@@ -280,9 +311,10 @@ Then rerun the application.
 - Source citations
 - Docker deployment
 - Cloud deployment
-- Multi-user support
+- Multi-user authentication
 - Long-term memory
 - Conversation summarization
+- Agentic workflows
 
 ---
 
@@ -298,7 +330,8 @@ This project demonstrates:
 - Prompt Engineering
 - LangChain Pipelines
 - Persistent Chat Storage
-- AI Application Architecture
+- Production-style ingestion pipelines
+- Modular AI application architecture
 
 ---
 
@@ -309,6 +342,8 @@ MIT License
 ---
 
 # Acknowledgements
+
+Built using:
 
 - LangChain
 - Streamlit
