@@ -127,6 +127,8 @@ conversational_rag/
 │       ├── attention.pdf
 │       └── *.pdf
 
+```
+
 ---
 
 # Architecture Overview
@@ -150,16 +152,15 @@ This improves:
 
 # How It Works
 
-## 1. Document Ingestion
+### 1. Document Ingestion
 
 PDF documents are loaded from:
 
 ```text
 src/data/
-```
 
 using LangChain `DirectoryLoader`.
-
+```
 The ingestion pipeline:
 
 1. Loads PDFs
@@ -175,7 +176,7 @@ src/ingest.py
 
 ---
 
-## 2. Text Chunking
+### 2. Text Chunking
 
 Documents are split into smaller chunks using:
 
@@ -187,7 +188,7 @@ to improve semantic retrieval quality.
 
 ---
 
-## 3. Embeddings
+### 3. Embeddings
 
 Text chunks are converted into vector embeddings using:
 
@@ -197,7 +198,7 @@ OpenAIEmbeddings
 
 ---
 
-## 4. Vector Database
+### 4. Vector Database
 
 Embeddings are stored persistently in:
 
@@ -209,7 +210,7 @@ using ChromaDB.
 
 ---
 
-## 5. Retrieval
+### 5. Retrieval
 
 For each user query:
 
@@ -219,7 +220,7 @@ For each user query:
 
 ---
 
-## 6. Streaming Responses
+### 6. Streaming Responses
 
 Responses are streamed token-by-token for a real-time conversational experience similar to ChatGPT.
 
@@ -233,7 +234,7 @@ and Streamlit dynamic rendering.
 
 ---
 
-## 7. Source Citations
+### 7. Source Citations
 
 Retrieved document sources are displayed alongside responses.
 
@@ -251,7 +252,7 @@ src/utils/citations.py
 
 ---
 
-## 8. Conversational Memory
+### 8. Conversational Memory
 
 Chat history is stored in SQLite:
 
