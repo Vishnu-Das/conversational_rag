@@ -15,12 +15,14 @@ from langchain_core.prompts import (
 )
 
 from langchain_community.retrievers import (
-    BM25Retriever
+    BM25Retriever,
 )
 
 from langchain_classic.retrievers import (
-    EnsembleRetriever
+    EnsembleRetriever,
+    MultiQueryRetriever
 )
+
 
 from langchain_openai import ChatOpenAI
 
@@ -112,7 +114,11 @@ def get_retriever(selected_document=None):
         ],
         weights=[0.7, 0.3]
     )
-    return ensemble_retriever
+    multi_query_retriever = MultiQueryRetriever.from_llm(
+        retriever=ensemble_retriever,
+        llm=llm
+    )
+    return multi_query_retriever
 
 ## Prompt template for the LLM to generate answers based on retrieved context and chat history.
 prompt = ChatPromptTemplate.from_messages([

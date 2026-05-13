@@ -11,3 +11,7 @@ wheels/
 
 #env
 .env
+
+chroma_db/
+
+chat_memory1.db
