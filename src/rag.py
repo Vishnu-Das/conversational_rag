@@ -1,4 +1,5 @@
 from typing import List
+import os
 
 from langchain_core.messages import (
     BaseMessage
@@ -13,9 +14,26 @@ from langchain_core.prompts import (
     MessagesPlaceholder
 )
 
+from langchain_community.retrievers import (
+    BM25Retriever
+)
+
+from langchain_classic.retrievers import (
+    EnsembleRetriever
+)
+
 from langchain_openai import ChatOpenAI
 
-from src.vectorstore import load_vectorstore
+from src.vectorstore import (
+    load_vectorstore,
+    load_and_split_documents
+)
+
+from src.config import (
+    MODEL_NAME
+)
+
+all_documents  = load_and_split_documents()
 
 contextualize_q_prompt = ChatPromptTemplate.from_messages([
     (
@@ -39,7 +57,7 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
 vectorstore = load_vectorstore()
 
 llm = ChatOpenAI(
-    model="gpt-3.5-turbo",  streaming=True
+    model=MODEL_NAME,  streaming=True
 )
 
 def get_retriever(selected_document=None):
@@ -47,15 +65,44 @@ def get_retriever(selected_document=None):
     search_kwargs = {
         "k": 4
     }
-    if (selected_document and selected_document != "All Documents"):
+    filtered_documents = all_documents
+    if (
+        selected_document
+        and selected_document != "All Documents"
+    ):
         search_kwargs["filter"] = {
             "source": selected_document
         }
-        search_kwargs["score_threshold"] = 0.5
-    return vectorstore.as_retriever(
-        search_type="similarity_score_threshold",
+
+        filtered_documents = [
+
+            doc for doc in all_documents
+
+            if os.path.basename(
+                doc.metadata.get("source", "")
+            ) == selected_document
+        ]
+
+    vector_retriever = vectorstore.as_retriever(
         search_kwargs=search_kwargs
     )
+    if not filtered_documents:
+        return vectorstore.as_retriever(
+            search_kwargs=search_kwargs
+        )
+
+    bm25_retriever = BM25Retriever.from_documents(
+        filtered_documents
+    )
+    bm25_retriever.k = 4
+    ensemble_retriever = EnsembleRetriever(
+        retrievers=[
+            vector_retriever,
+            bm25_retriever
+        ],
+        weights=[0.7, 0.3]
+    )
+    return ensemble_retriever
 
 prompt = ChatPromptTemplate.from_messages([
 

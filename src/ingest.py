@@ -1,79 +1,31 @@
-import shutil
-from pathlib import Path
-
-from dotenv import load_dotenv
-
-from langchain_community.document_loaders import (
-    DirectoryLoader,
-    PyPDFLoader
-)
-
-from langchain_text_splitters import (
-    RecursiveCharacterTextSplitter
-)
-
-from langchain_community.vectorstores import Chroma
-
 from langchain_openai import OpenAIEmbeddings
 
+from langchain_chroma import Chroma
 
-load_dotenv()
+from src.vectorstore import (
+    load_and_split_documents
+)
 
-BASE_DIR = Path(__file__).resolve().parent
-
-DATA_PATH = BASE_DIR / "data"
+from src.config import (
+    VECTOR_DB_DIR,
+    COLLECTION_NAME
+)
 
 
 def ingest_documents():
 
-    if Path("chroma_db").exists():
-        print("Deleting existing ChromaDB...")
-        shutil.rmtree("chroma_db")
-
-    print("Loading PDF documents...")
-
-    loader = DirectoryLoader(
-        path=str(DATA_PATH),
-        glob="**/*.pdf",
-        loader_cls=PyPDFLoader,
-        show_progress=True
-    )
-
-    documents = loader.load()
-
-    print(f"Loaded {len(documents)} pages")
-
-    print("Splitting documents...")
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
-
-    chunks = splitter.split_documents(documents)
-
-    for chunk in chunks:
-        source = chunk.metadata.get("source")
-        chunk.metadata["source"] = (
-            Path(source).name
-        )
-
-    print(f"Created {len(chunks)} chunks")
-
-    print("Generating embeddings...")
+    chunks = load_and_split_documents()
 
     embeddings = OpenAIEmbeddings()
-
-    print("Creating ChromaDB vector store...")
 
     Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
-        persist_directory="chroma_db",
-        collection_name="pdf_docs"
+        persist_directory=VECTOR_DB_DIR,
+        collection_name=COLLECTION_NAME
     )
 
-    print("Ingestion complete!")
+    print("Documents ingested successfully.")
 
 
 if __name__ == "__main__":
