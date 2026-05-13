@@ -1,10 +1,17 @@
 from sentence_transformers import CrossEncoder
 from src.config import RERANKING_MODEL_NAME
+import streamlit as st
 
 
-reranker_model = CrossEncoder(
-    RERANKING_MODEL_NAME
-)
+@st.cache_resource
+def load_reranker():
+
+    return CrossEncoder(
+        "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    )
+
+
+reranker_model = load_reranker()
 
 
 ## Reranking function that takes a query and a list of documents, computes relevance scores using the CrossEncoder model, and returns the top-k most relevant documents.

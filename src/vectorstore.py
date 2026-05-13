@@ -1,10 +1,16 @@
+import os
+
 from langchain_community.document_loaders import (
     DirectoryLoader,
     PyPDFLoader
 )
 
-from langchain_text_splitters import (
-    RecursiveCharacterTextSplitter
+# from langchain_text_splitters import (
+#     RecursiveCharacterTextSplitter
+# )
+
+from langchain_experimental.text_splitter import (
+    SemanticChunker
 )
 
 from langchain_openai import OpenAIEmbeddings
@@ -19,6 +25,8 @@ from src.config import (
     DATA_DIR
 )
 
+embeddings = OpenAIEmbeddings()
+
 
 def load_and_split_documents(): ## This function loads documents from the specified directory, splits them into chunks, and returns the list of chunks.
 
@@ -30,12 +38,14 @@ def load_and_split_documents(): ## This function loads documents from the specif
 
     documents = loader.load()
 
-    text_splitter = (
-        RecursiveCharacterTextSplitter(
-            chunk_size=CHUNK_SIZE,
-            chunk_overlap=CHUNK_OVERLAP
-        )
-    )
+    # text_splitter = (
+    #     RecursiveCharacterTextSplitter(
+    #         chunk_size=CHUNK_SIZE,
+    #         chunk_overlap=CHUNK_OVERLAP
+    #     )
+    # )
+
+    text_splitter = SemanticChunker(embeddings=embeddings)
 
     chunks = text_splitter.split_documents(
         documents
@@ -46,8 +56,6 @@ def load_and_split_documents(): ## This function loads documents from the specif
 
 def load_vectorstore(): ## This function initializes the Chroma vectorstore with OpenAI embeddings and returns the vectorstore instance.
 
-    embeddings = OpenAIEmbeddings()
-
     vectorstore = Chroma(
         persist_directory=VECTOR_DB_DIR,
         embedding_function=embeddings,
@@ -56,20 +64,14 @@ def load_vectorstore(): ## This function initializes the Chroma vectorstore with
 
     return vectorstore
 
-def get_available_documents(): ## This function retrieves the list of available documents from the loaded and split chunks, extracts their source filenames, and returns a sorted list of unique document names.
 
-    chunks = load_and_split_documents()
+def get_available_documents():
 
-    sources = set()
+    documents = []
 
-    for chunk in chunks:
+    for root, _, files in os.walk(DATA_DIR):
+        for file in files:
+            if file.endswith(".pdf"):
+                documents.append(file)
 
-        source = chunk.metadata.get("source")
-
-        if source:
-
-            filename = source.split("\\")[-1]
-
-            sources.add(filename)
-
-    return sorted(list(sources))
+    return sorted(documents)
