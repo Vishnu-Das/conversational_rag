@@ -27,6 +27,8 @@ The application supports:
 - Metadata-based document filtering
 - Context-aware retrieval
 - Source citations in responses
+- Hybrid search using BM25
+- CrossEncoder reranking
 
 ---
 
@@ -117,6 +119,7 @@ conversational_rag/
 │   ├── citations.py
 │   ├── ingest.py
 │   ├── config.py
+│   ├── reranker.py
 │   │
 │   └── data/
 │       ├── profile.pdf
@@ -353,7 +356,7 @@ src/data/
 Generate embeddings and build the vector database:
 
 ```bash
-uv run python src/ingest.py
+uv run python -m src.ingest
 ```
 
 This creates:
@@ -380,10 +383,10 @@ http://localhost:8501
 
 # Example Questions
 
-* "Summarize the resume"
+* "Summarize the resume."
 * "What skills are mentioned?"
 * "What projects are listed?"
-* "Explain the experience section"
+* "Explain the experience section."
 * "What technologies are used?"
 * "Who am I?" (conversation-aware memory)
 
@@ -417,6 +420,7 @@ http://localhost:8501
 * ChromaDB Persistence
 * Production-style Project Structure
 * Hybrid Search BM25 + vector
+* Reranking CrossEncoder
 
   ---
 
@@ -432,7 +436,6 @@ http://localhost:8501
 
 * Semantic chunking
 * Multi-query retrieval (partially covered)
-* Reranking
 * Docker deployment
 * FastAPI backend
 * Cloud deployment
@@ -459,8 +462,9 @@ This project demonstrates:
 * Persistent Chat Storage
 * Production-style ingestion pipelines
 * Modular AI application architecture
-* Metada fitlering
+* Metada filtering
 * History-aware retrieval
+* CrossEncoder reranking
 
 ---
 
