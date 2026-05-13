@@ -29,6 +29,7 @@ The application supports:
 - Source citations in responses
 - Hybrid search using BM25
 - CrossEncoder reranking
+- Semantic Chunking
 
 ---
 
@@ -421,6 +422,7 @@ http://localhost:8501
 * Production-style Project Structure
 * Hybrid Search BM25 + vector
 * Reranking CrossEncoder
+* Semantic Chunking
 
   ---
 
@@ -434,7 +436,6 @@ http://localhost:8501
 
 # Future Improvements
 
-* Semantic chunking
 * Multi-query retrieval (partially covered)
 * Docker deployment
 * FastAPI backend
