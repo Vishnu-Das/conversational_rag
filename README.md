@@ -116,6 +116,7 @@ conversational_rag/
 │   ├── database.py
 │   ├── citations.py
 │   ├── ingest.py
+│   ├── config.py
 │   │
 │   └── data/
 │       ├── profile.pdf
