@@ -18,3 +18,6 @@ VECTOR_DB_DIR = "chroma_db"
 COLLECTION_NAME = "pdf_docs"
 
 DATA_DIR = "src/data"
+
+RERANK_TOP_K = 4
+INITIAL_RETRIEVAL_K = 10

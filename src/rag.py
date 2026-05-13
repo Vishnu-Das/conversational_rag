@@ -30,7 +30,13 @@ from src.vectorstore import (
 )
 
 from src.config import (
-    MODEL_NAME
+    MODEL_NAME,
+    RERANK_TOP_K,
+    INITIAL_RETRIEVAL_K
+)
+
+from src.reranker import (
+    rerank_documents
 )
 
 all_documents  = load_and_split_documents()
@@ -63,7 +69,7 @@ llm = ChatOpenAI(
 def get_retriever(selected_document=None):
 
     search_kwargs = {
-        "k": 4
+        "k": INITIAL_RETRIEVAL_K
     }
     filtered_documents = all_documents
     if (
@@ -160,6 +166,12 @@ def stream_response(
         "input": user_input,
         "chat_history": chat_history,
     })
+
+    docs = rerank_documents(
+        user_input,
+        docs,
+        top_k=RERANK_TOP_K
+    )
 
     # print("\nRetrieved Documents:")
     # for doc in docs:
