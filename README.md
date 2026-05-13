@@ -17,18 +17,49 @@ The application supports:
 
 # Features
 
-* Conversational chat interface using Streamlit
-* Retrieval Augmented Generation (RAG)
-* Persistent conversational memory using SQLite
-* Semantic search over PDF documents
-* Streaming responses like ChatGPT
-* Source citations with page references
-* Multi-session chat support
-* Persistent vector database using ChromaDB
-* OpenAI embeddings + LLM integration
-* Multi-document PDF support
-* Separate ingestion pipeline using `ingest.py`
-* Production-style modular architecture
+## Core RAG Features
+
+- Conversational Retrieval-Augmented Generation (RAG)
+- Semantic search over PDF documents
+- Persistent vector database using ChromaDB
+- OpenAI embeddings + LLM integration
+- Multi-PDF support
+- Metadata-based document filtering
+- Context-aware retrieval
+- Source citations in responses
+
+---
+
+## Conversational Features
+
+- Persistent chat memory using SQLite
+- Multi-session conversations
+- History-aware retrieval
+- Follow-up question understanding
+- ChatGPT-style streaming responses
+- Typing cursor effect
+
+---
+
+## UI Features
+
+- Streamlit chat interface
+- Dynamic sidebar chat previews
+- Single-click chat switching
+- Document selection filter
+- Responsive layout
+- Fixed-width sidebar UI improvements
+
+---
+
+## Architecture Features
+
+- Modular project structure
+- Separate ingestion pipeline
+- Persistent vector indexing
+- Clean separation of concerns
+- Scalable code organization
+- Production-style architecture
 
 ---
 
@@ -44,6 +75,25 @@ The application supports:
 
 ---
 
+# Architecture
+
+```text
+User Query
+    ↓
+History-Aware Query Rewriter
+    ↓
+Metadata Filtered Retriever
+    ↓
+Chroma Vector Search
+    ↓
+Context Injection
+    ↓
+OpenAI LLM
+    ↓
+Streaming Response
+    ↓
+Persistent Memory Storage
+```
 # Project Structure
 
 ```text
@@ -53,24 +103,24 @@ conversational_rag/
 ├── .env
 ├── pyproject.toml
 ├── uv.lock
+├── README.md
 ├── chat_memory1.db
 ├── chroma_db/
 │
 ├── src/
 │   ├── __init__.py
+│   │
 │   ├── conversationalAI.py
 │   ├── rag.py
 │   ├── vectorstore.py
 │   ├── database.py
+│   ├── citations.py
 │   ├── ingest.py
 │   │
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   └── citations.py
-│   │
 │   └── data/
+│       ├── profile.pdf
+│       ├── attention.pdf
 │       └── *.pdf
-```
 
 ---
 
@@ -341,7 +391,32 @@ http://localhost:8501
 # Current Limitations
 
 * No authentication
-* No metadata filtering
+* No hybrid retrieval
+* No reranking pipeline
+* Local deployment only
+
+---
+
+# Features Covered
+
+* Streaming Responses
+* Typing Cursor Effect
+* Source Citations
+* Metadata Filtering
+* Persistent Conversational Memory
+* Multi-session Chat Support
+* History-aware Retrieval
+* Persistent Chroma Vector Database
+* Modular Production-style Architecture
+* Multi-PDF Support
+* Separate Ingestion Pipeline
+* Sidebar Chat Management
+* Dynamic Chat Previews
+* SQLite Chat Persistence
+* ChromaDB Persistence
+* Production-style Project Structure
+
+* No authentication
 * No hybrid retrieval
 * No reranking pipeline
 * Local deployment only
@@ -350,16 +425,15 @@ http://localhost:8501
 
 # Future Improvements
 
-* History-aware retrieval
 * Hybrid search
 * Semantic chunking
-* Multi-query retrieval
+* Multi-query retrieval (partially covered)
 * Reranking
 * Docker deployment
 * FastAPI backend
 * Cloud deployment
 * Multi-user authentication
-* Long-term memory
+* Long-term memory (partially covered)
 * Agentic workflows
 * Evaluation pipeline
 
@@ -381,6 +455,8 @@ This project demonstrates:
 * Persistent Chat Storage
 * Production-style ingestion pipelines
 * Modular AI application architecture
+* Metada fitlering
+* History-aware retrieval
 
 ---
 
