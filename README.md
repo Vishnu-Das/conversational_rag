@@ -415,7 +415,11 @@ http://localhost:8501
 * SQLite Chat Persistence
 * ChromaDB Persistence
 * Production-style Project Structure
+* Hybrid Search BM25 + vector
 
+  ---
+
+# Limitations
 * No authentication
 * No hybrid retrieval
 * No reranking pipeline
@@ -425,7 +429,6 @@ http://localhost:8501
 
 # Future Improvements
 
-* Hybrid search
 * Semantic chunking
 * Multi-query retrieval (partially covered)
 * Reranking
