@@ -1,8 +1,7 @@
 from typing import List
 
 from langchain_core.messages import (
-    BaseMessage,
-    SystemMessage
+    BaseMessage
 )
 
 from langchain_classic.chains.history_aware_retriever import (
@@ -31,7 +30,7 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
         """
     ),
 
-    MessagesPlaceholder("chat_history"),
+    MessagesPlaceholder(variable_name="chat_history"),
 
     ("human", "{input}")
 ])
@@ -43,15 +42,20 @@ llm = ChatOpenAI(
     model="gpt-3.5-turbo",  streaming=True
 )
 
-retriever = vectorstore.as_retriever(
-    search_kwargs={"k": 4}
-)
+def get_retriever(selected_document=None):
 
-history_aware_retriever = create_history_aware_retriever(
-    llm,
-    retriever,
-    contextualize_q_prompt
-)
+    search_kwargs = {
+        "k": 4
+    }
+    if (selected_document and selected_document != "All Documents"):
+        search_kwargs["filter"] = {
+            "source": selected_document
+        }
+        search_kwargs["score_threshold"] = 0.5
+    return vectorstore.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs=search_kwargs
+    )
 
 prompt = ChatPromptTemplate.from_messages([
 
@@ -88,41 +92,45 @@ prompt = ChatPromptTemplate.from_messages([
 
 def stream_response(
     user_input: str,
-    chat_history: List[BaseMessage]
+    chat_history: List[BaseMessage],
+    selected_document: str = None
 ):
+
+    retriever = get_retriever(selected_document)
+
+    # print("\n========== DEBUG ==========")
+    # print("Selected Document:", selected_document)
+
+    history_aware_retriever = (
+        create_history_aware_retriever(
+            llm,
+            retriever,
+            contextualize_q_prompt
+        )
+    )
+
     docs = history_aware_retriever.invoke({
-                "input": user_input,
-                "chat_history": chat_history
-            })
-    context =  "\n\n---\n\n".join([
+        "input": user_input,
+        "chat_history": chat_history,
+    })
+
+    # print("\nRetrieved Documents:")
+    # for doc in docs:
+    #     print(
+    #         doc.metadata.get("source")
+    #     )
+    # print("===========================\n")
+
+    context = "\n\n---\n\n".join([
         doc.page_content for doc in docs
     ])
+
     messages = prompt.invoke({
         "input": user_input,
         "chat_history": chat_history,
         "context": context
     })
+
     stream = llm.stream(messages)
+
     return stream, docs
-
-
-def conversational_rag(
-    user_input: str,
-    chat_history: List[BaseMessage]
-):
-
-    docs = retriever.invoke(user_input)
-
-    context = "\n\n".join([
-        doc.page_content for doc in docs
-    ])
-
-    messages = prompt.invoke({
-        "input": user_input,
-        "chat_history": chat_history,
-        "context": context
-    })
-
-    response = llm.stream(messages)
-
-    return response, docs

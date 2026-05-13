@@ -11,9 +11,11 @@ from src.database import (
     get_all_sessions,
     get_chat_preview
 )
-from src.rag import conversational_rag
 from src.rag import stream_response
 from src.utils.citations import extract_sources
+from src.vectorstore import (
+    get_available_documents
+)
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
@@ -43,6 +45,13 @@ def run_app():
 )
 
     st.title("Agent By Vishnu Das")
+
+    documents = get_available_documents()
+
+    selected_document = st.sidebar.selectbox(
+        "Filter Documents",
+        ["All Documents"] + documents
+    )
 
     # Sidebar
     st.sidebar.header("Chats")
@@ -98,7 +107,8 @@ def run_app():
         )
         stream, sources = stream_response(
             user_input,
-            st.session_state.chat_history
+            st.session_state.chat_history,
+            selected_document
         )
 
         assistant_response = ""

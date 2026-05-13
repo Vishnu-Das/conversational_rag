@@ -52,6 +52,12 @@ def ingest_documents():
 
     chunks = splitter.split_documents(documents)
 
+    for chunk in chunks:
+        source = chunk.metadata.get("source")
+        chunk.metadata["source"] = (
+            Path(source).name
+        )
+
     print(f"Created {len(chunks)} chunks")
 
     print("Generating embeddings...")

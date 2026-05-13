@@ -1,5 +1,6 @@
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
+from pathlib import Path
 
 
 def load_vectorstore():
@@ -13,3 +14,11 @@ def load_vectorstore():
     )
 
     return vectorstore
+
+def get_available_documents():
+
+    data_dir = Path("src/data")
+    pdfs = []
+    for file in data_dir.rglob("*.pdf"):
+        pdfs.append(file.name)
+    return sorted(pdfs)
