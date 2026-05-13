@@ -19,7 +19,7 @@ from src.vectorstore import (
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-def run_app():
+def run_app(): ## This function sets up the Streamlit app, including page configuration, sidebar for chat sessions, and the main interface for displaying chat history and handling user input. It also manages the state of the current chat session and interacts with the response streaming and source extraction functions.
 
     st.set_page_config(
         page_title="Conversational AI",

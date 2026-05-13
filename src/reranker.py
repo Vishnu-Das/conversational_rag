@@ -1,11 +1,13 @@
 from sentence_transformers import CrossEncoder
+from src.config import RERANKING_MODEL_NAME
 
 
 reranker_model = CrossEncoder(
-    "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    RERANKING_MODEL_NAME
 )
 
 
+## Reranking function that takes a query and a list of documents, computes relevance scores using the CrossEncoder model, and returns the top-k most relevant documents.
 def rerank_documents(
     query,
     documents,

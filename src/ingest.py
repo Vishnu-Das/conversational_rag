@@ -12,7 +12,7 @@ from src.config import (
 )
 
 
-def ingest_documents():
+def ingest_documents(): ## This function loads and splits documents, creates embeddings, and stores them in the Chroma vectorstore for later retrieval.
 
     chunks = load_and_split_documents()
 

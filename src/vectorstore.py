@@ -20,7 +20,7 @@ from src.config import (
 )
 
 
-def load_and_split_documents():
+def load_and_split_documents(): ## This function loads documents from the specified directory, splits them into chunks, and returns the list of chunks.
 
     loader = DirectoryLoader(
         DATA_DIR,
@@ -44,7 +44,7 @@ def load_and_split_documents():
     return chunks
 
 
-def load_vectorstore():
+def load_vectorstore(): ## This function initializes the Chroma vectorstore with OpenAI embeddings and returns the vectorstore instance.
 
     embeddings = OpenAIEmbeddings()
 
@@ -56,7 +56,7 @@ def load_vectorstore():
 
     return vectorstore
 
-def get_available_documents():
+def get_available_documents(): ## This function retrieves the list of available documents from the loaded and split chunks, extracts their source filenames, and returns a sorted list of unique document names.
 
     chunks = load_and_split_documents()
 

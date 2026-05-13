@@ -39,8 +39,10 @@ from src.reranker import (
     rerank_documents
 )
 
+## Load and split documents at startup to avoid doing it on every query
 all_documents  = load_and_split_documents()
 
+## Prompt to reformulate the user's question in the context of the chat history
 contextualize_q_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
@@ -59,13 +61,15 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
     ("human", "{input}")
 ])
 
-
+## Load the vectorstore at startup to avoid doing it on every query
 vectorstore = load_vectorstore()
 
+## Initialize the LLM with streaming enabled for real-time response generation
 llm = ChatOpenAI(
     model=MODEL_NAME,  streaming=True
 )
 
+## Function to create a retriever based on the selected document filter.
 def get_retriever(selected_document=None):
 
     search_kwargs = {
@@ -110,6 +114,7 @@ def get_retriever(selected_document=None):
     )
     return ensemble_retriever
 
+## Prompt template for the LLM to generate answers based on retrieved context and chat history.
 prompt = ChatPromptTemplate.from_messages([
 
     (
@@ -143,6 +148,8 @@ prompt = ChatPromptTemplate.from_messages([
 
 ])
 
+## Main function to handle user input, retrieve relevant documents,
+## and generate a streamed response from the LLM
 def stream_response(
     user_input: str,
     chat_history: List[BaseMessage],
@@ -153,6 +160,8 @@ def stream_response(
 
     # print("\n========== DEBUG ==========")
     # print("Selected Document:", selected_document)
+
+    ## Create a history-aware retriever that reformulates the question
 
     history_aware_retriever = (
         create_history_aware_retriever(
@@ -166,6 +175,8 @@ def stream_response(
         "input": user_input,
         "chat_history": chat_history,
     })
+
+    ## Rerank retrieved documents based on relevance to the question and chat history
 
     docs = rerank_documents(
         user_input,

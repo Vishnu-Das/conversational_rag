@@ -21,3 +21,5 @@ DATA_DIR = "src/data"
 
 RERANK_TOP_K = 4
 INITIAL_RETRIEVAL_K = 10
+
+RERANKING_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"

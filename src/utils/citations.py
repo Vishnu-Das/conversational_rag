@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def extract_sources(docs):
+def extract_sources(docs): ## This function takes a list of documents, extracts the source and page information from the metadata, and formats it into a list of dictionaries containing the source name, page number, and a preview of the content. It also ensures that duplicate sources (same document and page) are not included multiple times in the output.
     formatted_sources = []
     displayed_sources = set()
     for doc in docs:
