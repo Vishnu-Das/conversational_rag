@@ -17,6 +17,8 @@ from langchain_openai import OpenAIEmbeddings
 
 from langchain_chroma import Chroma
 
+from langchain_core.documents import Document
+
 from src.config import (
     CHUNK_SIZE,
     CHUNK_OVERLAP,
@@ -45,13 +47,7 @@ def load_and_split_documents(): ## This function loads documents from the specif
     #     )
     # )
 
-    text_splitter = SemanticChunker(embeddings=embeddings)
-
-    chunks = text_splitter.split_documents(
-        documents
-    )
-
-    return chunks
+    return split_documents(documents)
 
 
 def load_vectorstore(): ## This function initializes the Chroma vectorstore with OpenAI embeddings and returns the vectorstore instance.
@@ -75,3 +71,34 @@ def get_available_documents():
                 documents.append(file)
 
     return sorted(documents)
+
+def load_documents_from_vectorstore():
+
+    vectorstore = load_vectorstore()
+    data = vectorstore.get(
+        include=["documents", "metadatas"]
+    )
+    documents = [
+        Document(
+            page_content=doc,
+            metadata=meta
+        )
+        for doc, meta in zip(
+            data["documents"],
+            data["metadatas"]
+        )
+    ]
+    return documents
+
+def load_single_document(file_path):
+    loader = PyPDFLoader(file_path)
+    return loader.load()
+
+def split_documents(documents):
+
+    text_splitter = SemanticChunker(
+        embeddings=embeddings
+    )
+    return text_splitter.split_documents(
+        documents
+    )

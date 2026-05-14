@@ -5,10 +5,7 @@ import streamlit as st
 
 @st.cache_resource
 def load_reranker():
-
-    return CrossEncoder(
-        "cross-encoder/ms-marco-MiniLM-L-6-v2"
-    )
+    return CrossEncoder(RERANKING_MODEL_NAME)
 
 
 reranker_model = load_reranker()
