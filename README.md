@@ -424,20 +424,33 @@ http://localhost:8501
 * Hybrid Search BM25 + vector
 * Reranking CrossEncoder
 * Semantic Chunking
+* Document Deduplication
+* Optimized runtime performance using caching:
+  - Cached retrievers
+  - Cached history-aware retrievers
+  - Cached retrieval results
+  - Cached reranker model
+  - Cached document loading
+* Refactored retriever creation and ingestion architecture
+* incremental PDF ingestion pipeline
+* PDF upload feature in Streamlit sidebar
+* Single-document ingestion without rebuilding entire vector DB
+* Automatic cache invalidation after new document ingestion
+* Upload deduplication handling
+* Uploader reset and upload success notifications
+* Fixed repeated ingestion issues caused by Streamlit reruns
+* Improved Streamlit session-state handling
 
   ---
 
 # Limitations
 * No authentication
-* No hybrid retrieval
-* No reranking pipeline
 * Local deployment only
 
 ---
 
 # Future Improvements
 
-* Multi-query retrieval (partially covered)
 * Docker deployment
 * FastAPI backend
 * Cloud deployment

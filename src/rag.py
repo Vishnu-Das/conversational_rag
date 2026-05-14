@@ -5,49 +5,17 @@ from typing import List
 import os
 from functools import lru_cache
 import streamlit as st
-
-from langchain_core.messages import (
-    BaseMessage
-)
-
-from langchain_classic.chains.history_aware_retriever import (
-    create_history_aware_retriever
-)
-
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder
-)
-
-from langchain_community.retrievers import (
-    BM25Retriever,
-)
-
-from langchain_classic.retrievers import (
-    EnsembleRetriever,
-    MultiQueryRetriever
-)
-
-
+from langchain_core.messages import (BaseMessage)
+from langchain_classic.chains.history_aware_retriever import (create_history_aware_retriever)
+from langchain_core.prompts import (ChatPromptTemplate,MessagesPlaceholder)
+from langchain_community.retrievers import (BM25Retriever,)
+from langchain_classic.retrievers import (EnsembleRetriever,MultiQueryRetriever)
 from langchain_openai import ChatOpenAI
-
-from src.vectorstore import (
-    load_vectorstore,
-    load_and_split_documents,
-    load_documents_from_vectorstore
-)
-
-from src.config import (
-    MODEL_NAME,
-    RERANK_TOP_K,
-    INITIAL_RETRIEVAL_K
-)
-
-from src.reranker import (
-    rerank_documents
-)
-
+from src.vectorstore import (load_vectorstore,load_and_split_documents,load_documents_from_vectorstore)
+from src.config import (MODEL_NAME,RERANK_TOP_K,INITIAL_RETRIEVAL_K)
+from src.reranker import (rerank_documents)
 from src.helpers.deduplication import deduplicate_docs
+# from src.compression import compress_documents
 
 @st.cache_resource
 def get_all_documents(): ## This function loads all documents from the vectorstore and caches the result to avoid redundant loading on every query. It is used to enable filtering and retrieval based on document source.
@@ -69,9 +37,7 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
         Just reformulate it if needed.
         """
     ),
-
     MessagesPlaceholder(variable_name="chat_history"),
-
     ("human", "{input}")
 ])
 
@@ -86,7 +52,6 @@ llm = ChatOpenAI(
 ## Function to create a retriever based on the selected document filter.
 @lru_cache(maxsize=10)
 def get_retriever(selected_document=None):
-
     search_kwargs = {
         "k": INITIAL_RETRIEVAL_K
     }
@@ -135,7 +100,6 @@ def get_retriever(selected_document=None):
 
 ## Prompt template for the LLM to generate answers based on retrieved context and chat history.
 prompt = ChatPromptTemplate.from_messages([
-
     (
         "system",
         """
@@ -158,11 +122,9 @@ prompt = ChatPromptTemplate.from_messages([
         {context}
         """
     ),
-
     MessagesPlaceholder(
         variable_name="chat_history"
     ),
-
     ("human", "{input}")
 
 ])
@@ -209,14 +171,8 @@ def reset_rag_caches():
 
 ## Main function to handle user input, retrieve relevant documents,
 ## and generate a streamed response from the LLM
-def stream_response(
-    user_input: str,
-    chat_history: List[BaseMessage],
-    selected_document: str = None
-):
-
+def stream_response(user_input: str, chat_history: List[BaseMessage], selected_document: str = None):
     history_aware_retriever = get_history_aware_retriever(selected_document)
-
     if not chat_history:
         history_aware_docs = cached_retrieval(
             user_input,
@@ -232,12 +188,18 @@ def stream_response(
     dedup_docs = deduplicate_docs(history_aware_docs)
 
     ## Rerank retrieved documents based on relevance to the question and chat history
-
     docs = rerank_documents(
         user_input,
         dedup_docs,
         top_k=RERANK_TOP_K
     )
+
+    # Compression makes extra LLM call and slows down response time, so it's commented out for now. It can be enabled if the retrieved documents are too long to fit in the context window, but ideally the retriever should be tuned to return relevant but concise results.
+    # ## Compress documents to fit within the LLM's context window while preserving relevant information for answering the question.
+    # docs = compress_documents(
+    #     user_input,
+    #     docs
+    # )
 
     # print("\nRetrieved Documents:")
     # for doc in docs:

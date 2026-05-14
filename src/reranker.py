@@ -1,7 +1,12 @@
 from sentence_transformers import CrossEncoder
 from src.config import RERANKING_MODEL_NAME
+from huggingface_hub import login
 import streamlit as st
+# from src.config import HF_TOKEN
 
+
+# if HF_TOKEN:
+#     login(token=HF_TOKEN)
 
 @st.cache_resource
 def load_reranker():
