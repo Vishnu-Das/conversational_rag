@@ -294,12 +294,6 @@ http://localhost:8501
 
   ---
 
-# Limitations
-* No authentication
-* Local deployment only
-
----
-
 # Future Improvements
 
 * Docker deployment
@@ -352,9 +346,3 @@ Built using:
 * UV Package Manager
 
 ---
-
-# References & Inspiration
-
-This project architecture and improvements were inspired by modern RAG engineering patterns and production-ready conversational AI systems. ([Go Packages][1])
-
-[1]: https://pkg.go.dev/github.com/zgsm-ai/chat-rag?utm_source=chatgpt.com "chat-rag command - github.com/zgsm-ai/chat-rag - Go Packages"
