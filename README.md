@@ -78,25 +78,6 @@ The application supports:
 
 ---
 
-# Architecture
-
-```text
-User Query
-    ↓
-History-Aware Query Rewriter
-    ↓
-Metadata Filtered Retriever
-    ↓
-Chroma Vector Search
-    ↓
-Context Injection
-    ↓
-OpenAI LLM
-    ↓
-Streaming Response
-    ↓
-Persistent Memory Storage
-```
 # Project Structure
 
 ```text
