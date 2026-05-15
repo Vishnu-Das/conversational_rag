@@ -14,6 +14,13 @@ The application supports:
 * modular RAG architecture
 
 ---
+<img width="1547" height="1238" alt="localhost_8501_ (2)" src="https://github.com/user-attachments/assets/7df5d2bf-f3cd-4efd-92e9-27b6e388bfe4" />
+---
+<img width="1554" height="1249" alt="localhost_8501_ (1)" src="https://github.com/user-attachments/assets/5824078f-8ad9-4733-a8b7-70a4631fbb5c" />
+---
+<img width="1540" height="1242" alt="localhost_8501_" src="https://github.com/user-attachments/assets/ab41ba9c-df16-4b79-b29c-24384dd2e310" />
+---
+
 
 # Features
 
@@ -84,29 +91,52 @@ The application supports:
 conversational_rag/
 │
 ├── app.py
+├── requirements.txt
 ├── .env
-├── pyproject.toml
-├── uv.lock
+├── .gitignore
 ├── README.md
-├── chat_memory1.db
+│
+├── data/
+│   └── PDFs uploaded by user
+│
 ├── chroma_db/
+│   └── Vector database
 │
 ├── src/
-│   ├── __init__.py
-│   │
-│   ├── conversationalAI.py
-│   ├── rag.py
-│   ├── vectorstore.py
-│   ├── database.py
-│   ├── citations.py
-│   ├── ingest.py
+│
 │   ├── config.py
+│   ├── ingest.py
+│   ├── database.py
+│   ├── vectorstore.py
 │   ├── reranker.py
+│
+│   ├── rag/
+│   │   ├── __init__.py
+│   │   ├── service.py
+│   │   ├── retrievers.py
+│   │   ├── prompts.py
+│   │   ├── llm.py
+│   │   └── cache.py
 │   │
-│   └── data/
-│       ├── profile.pdf
-│       ├── attention.pdf
-│       └── *.pdf
+│   ├── services/
+│   │   ├── session_service.py
+│   │   └── upload_service.py
+│   │
+│   ├── ui/
+│   │   ├── main.py
+│   │   ├── chat.py
+│   │   ├── sidebar.py
+│   │   ├── welcome.py
+│   │   └── styles.py
+│   │
+│   ├── helpers/
+│   │   └── deduplication.py
+│   │
+│   └── utils/
+│       └── citations.py
+│
+└── tests/
+    └── future test files
 
 ```
 
@@ -117,7 +147,7 @@ conversational_rag/
 ## Clone Repository
 
 ```bash
-git clone <your_repo_url>
+git clone https://github.com/Vishnu-Das/conversational_rag
 cd conversational_rag
 ```
 
