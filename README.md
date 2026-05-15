@@ -131,139 +131,6 @@ conversational_rag/
 
 ---
 
-# Architecture Overview
-
-This project follows a production-style RAG architecture by separating:
-
-* document ingestion
-* vector indexing
-* conversational runtime
-* memory persistence
-* citation formatting
-
-This improves:
-
-* startup performance
-* scalability
-* maintainability
-* extensibility
-
----
-
-# How It Works
-
-### 1. Document Ingestion
-
-PDF documents are loaded from:
-
-```text
-src/data/
-
-using LangChain `DirectoryLoader`.
-```
-The ingestion pipeline:
-
-1. Loads PDFs
-2. Splits documents into chunks
-3. Generates embeddings
-4. Stores vectors in ChromaDB
-
-This process is handled separately by:
-
-```text
-src/ingest.py
-```
-
----
-
-### 2. Text Chunking
-
-Documents are split into smaller chunks using:
-
-```python
-RecursiveCharacterTextSplitter
-```
-
-to improve semantic retrieval quality.
-
----
-
-### 3. Embeddings
-
-Text chunks are converted into vector embeddings using:
-
-```python
-OpenAIEmbeddings
-```
-
----
-
-### 4. Vector Database
-
-Embeddings are stored persistently in:
-
-```text
-chroma_db/
-```
-
-using ChromaDB.
-
----
-
-### 5. Retrieval
-
-For each user query:
-
-1. Relevant chunks are retrieved
-2. Context is injected into the prompt
-3. LLM generates context-aware responses
-
----
-
-### 6. Streaming Responses
-
-Responses are streamed token-by-token for a real-time conversational experience similar to ChatGPT.
-
-Implemented using:
-
-```python
-ChatOpenAI(streaming=True)
-```
-
-and Streamlit dynamic rendering.
-
----
-
-### 7. Source Citations
-
-Retrieved document sources are displayed alongside responses.
-
-Citations include:
-
-* source document
-* page number
-* chunk preview
-
-Citation formatting logic is separated into:
-
-```text
-src/utils/citations.py
-```
-
----
-
-### 8. Conversational Memory
-
-Chat history is stored in SQLite:
-
-```text
-chat_memory1.db
-```
-
-allowing persistent multi-session conversations.
-
----
-
 # Installation
 
 ## Clone Repository
@@ -327,6 +194,7 @@ Create a `.env` file in the project root:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
+HF_TOKEN=your_huggingface_api_key (optional)
 ```
 
 ---
@@ -335,7 +203,7 @@ OPENAI_API_KEY=your_openai_api_key
 
 ## Step 1 — Add PDFs
 
-Place PDF files inside:
+### Place PDF files inside:
 
 ```text
 src/data/
@@ -350,12 +218,16 @@ src/data/
 └── research/
     └── ai.pdf
 ```
+### Upload PDF
 
+```text
+file directly from the UI interface (works for single uploads)
+```
 ---
 
 ## Step 2 — Run Document Ingestion
 
-Generate embeddings and build the vector database:
+Generate embeddings and build the vector database (only for bulk document ingestion when placed directly in the data folder):
 
 ```bash
 uv run python -m src.ingest
@@ -397,8 +269,6 @@ http://localhost:8501
 # Current Limitations
 
 * No authentication
-* No hybrid retrieval
-* No reranking pipeline
 * Local deployment only
 
 ---
@@ -480,6 +350,7 @@ This project demonstrates:
 * Metada filtering
 * History-aware retrieval
 * CrossEncoder reranking
+* Context Compressor
 
 ---
 
