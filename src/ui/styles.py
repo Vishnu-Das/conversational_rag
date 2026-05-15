@@ -43,24 +43,41 @@ div.stButton > button {
     font-style: italic;
 }
 
-.source-card {
-    background-color: #111827;
-    border: 1px solid #2D3748;
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 12px;
-}
-
-.source-title {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 6px;
-}
-
 .source-preview {
     color: #D1D5DB;
     font-size: 14px;
     line-height: 1.5;
+}
+
+.source-card {
+    background: linear-gradient(
+        145deg,
+        #0F172A,
+        #111827
+    );
+    border: 1px solid #243041;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+
+.source-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #F9FAFB;
+    margin-bottom: 14px;
+}
+
+.source-preview-box {
+    background-color: #1E293B;
+    border-radius: 12px;
+    padding: 14px;
+    color: #D1D5DB;
+    font-size: 14px;
+    line-height: 1.7;
+    border-left: 4px solid #3B82F6;
+    overflow-wrap: break-word;
 }
 
 </style>

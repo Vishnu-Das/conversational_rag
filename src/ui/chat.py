@@ -1,5 +1,7 @@
 import streamlit as st
 
+from textwrap import dedent
+
 from langchain_core.messages import (
     HumanMessage,
     AIMessage,
@@ -22,24 +24,24 @@ def render_chat_history():
         if isinstance(msg, HumanMessage):
 
             st.markdown(
-                f"""
+                dedent(f"""
                 <div class="user-message">
                     <strong>🧑 You</strong><br><br>
                     {msg.content}
                 </div>
-                """,
+                """),
                 unsafe_allow_html=True
             )
 
         elif isinstance(msg, AIMessage):
 
             st.markdown(
-                f"""
+                dedent(f"""
                 <div class="assistant-message">
                     <strong>🤖 Assistant</strong><br><br>
                     {msg.content}
                 </div>
-                """,
+                """),
                 unsafe_allow_html=True
             )
 
@@ -78,23 +80,23 @@ def handle_chat_input(selected_document):
     )
 
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="user-message">
             <strong>🧑 You</strong><br><br>
             {user_input}
         </div>
-        """,
+        """),
         unsafe_allow_html=True
     )
 
     status_placeholder = st.empty()
 
     status_placeholder.markdown(
-        """
+        dedent("""
         <div class="status-message">
             🔍 Retrieving and analyzing documents...
         </div>
-        """,
+        """),
         unsafe_allow_html=True
     )
 
@@ -109,11 +111,11 @@ def handle_chat_input(selected_document):
     response_placeholder = st.empty()
 
     status_placeholder.markdown(
-        """
+        dedent("""
         <div class="status-message">
             ✍️ Generating response...
         </div>
-        """,
+        """),
         unsafe_allow_html=True
     )
 
@@ -126,50 +128,49 @@ def handle_chat_input(selected_document):
             assistant_response += chunk.content
 
             response_placeholder.markdown(
-                f"""
+                dedent(f"""
                 <div class="assistant-message">
                     <strong>🤖 Assistant</strong><br><br>
                     {assistant_response}▌
                 </div>
-                """,
+                """),
                 unsafe_allow_html=True
             )
 
     response_placeholder.markdown(
-        f"""
+        dedent(f"""
         <div class="assistant-message">
             <strong>🤖 Assistant</strong><br><br>
             {assistant_response}
         </div>
-        """,
+        """),
         unsafe_allow_html=True
     )
 
-    formatted_sources = extract_sources(
-        sources
-    )
+    formatted_sources = extract_sources(sources)
 
     if formatted_sources:
 
         with st.expander(
-            f"📚 Sources ({len(formatted_sources)})"
+            f"📚 Sources ({len(formatted_sources)})",
+            expanded=False
         ):
 
             for item in formatted_sources:
 
-                st.markdown(
-                    f"""
-                    <div class="source-card">
-                        <div class="source-title">
-                            📄 {item['source']}
-                            — Page {item['page']}
-                        </div>
-
-                        <div class="source-preview">
-                            {item['preview']}...
-                        </div>
+                source_html = f"""
+                <div class="source-card">
+                    <div class="source-title">
+                        📄 {item['source']} — Page {item['page']}
                     </div>
-                    """,
+                    <div class="source-preview-box">
+                        {item['preview']}...
+                    </div>
+                </div>
+                """
+
+                st.markdown(
+                    source_html,
                     unsafe_allow_html=True
                 )
 

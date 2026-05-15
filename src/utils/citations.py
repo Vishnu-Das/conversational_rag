@@ -1,25 +1,49 @@
-from pathlib import Path
+import os
+import html
+import re
 
 
-def extract_sources(docs): ## This function takes a list of documents, extracts the source and page information from the metadata, and formats it into a list of dictionaries containing the source name, page number, and a preview of the content. It also ensures that duplicate sources (same document and page) are not included multiple times in the output.
+def extract_sources(documents):
+
     formatted_sources = []
-    displayed_sources = set()
-    for doc in docs:
-        source = doc.metadata.get(
-            "source",
-            "Unknown"
+
+    for doc in documents:
+
+        source = os.path.basename(
+            doc.metadata.get("source", "Unknown")
         )
+
         page = doc.metadata.get(
             "page",
-            "Unknown"
+            "N/A"
         )
-        source_name = Path(source).name
-        unique_key = f"{source_name}-{page}"
-        if unique_key not in displayed_sources:
-            formatted_sources.append({
-                "source": source_name,
-                "page": page + 1,
-                "preview": doc.page_content[:300]
-            })
-            displayed_sources.add(unique_key)
+
+        preview = doc.page_content
+
+        # Remove ALL newlines/tabs
+        preview = re.sub(
+            r"[\n\r\t]+",
+            " ",
+            preview
+        )
+
+        # Remove extra spaces
+        preview = re.sub(
+            r"\s+",
+            " ",
+            preview
+        ).strip()
+
+        # Escape HTML safely
+        preview = html.escape(preview)
+
+        # Limit preview size
+        preview = preview[:220]
+
+        formatted_sources.append({
+            "source": source,
+            "page": page,
+            "preview": preview
+        })
+
     return formatted_sources
