@@ -1,0 +1,25 @@
+services:
+  conversational-rag:
+    build: .
+    container_name: conversational-rag
+
+    ports:
+      - "8501:8501"
+
+    env_file:
+      - .env
+
+    environment:
+      HF_HOME: /root/.cache/huggingface
+      TRANSFORMERS_CACHE: /root/.cache/huggingface
+
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./src/data:/app/src/data
+      - ./storage:/app/storage
+      - hf_cache:/root/.cache/huggingface
+
+    restart: unless-stopped
+
+volumes:
+  hf_cache:

@@ -20,8 +20,8 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 from src.config import (
-    CHUNK_SIZE,
-    CHUNK_OVERLAP,
+    # CHUNK_SIZE,
+    # CHUNK_OVERLAP,
     VECTOR_DB_DIR,
     COLLECTION_NAME,
     DATA_DIR

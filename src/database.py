@@ -1,5 +1,8 @@
-import sqlite3
 from typing import List
+import os
+import sqlite3
+
+from src.config import CHAT_DB_PATH
 
 from langchain_core.messages import (
     BaseMessage,
@@ -10,8 +13,13 @@ from langchain_core.messages import (
 
 ## Database setup for storing chat history, with functions to save messages and load chat history based on session IDs. Also includes a function to get a preview of the chat based on the first human message in the session.
 
+os.makedirs(
+    os.path.dirname(CHAT_DB_PATH),
+    exist_ok=True
+)
+
 conn = sqlite3.connect(
-    "chat_memory1.db",
+    CHAT_DB_PATH,
     check_same_thread=False
 )
 

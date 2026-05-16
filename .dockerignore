@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments
+.venv/
+venv/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+
+# Streamlit cache
+.streamlit/
+
+# Build
+build/
+dist/
+
+# Chroma DB
+chroma_db/
+
+# Uploaded PDFs
+src/data/
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ChatMemory
+storage/
+chat_memory1.db
+*.db

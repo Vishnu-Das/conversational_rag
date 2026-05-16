@@ -97,53 +97,164 @@ The application supports:
 conversational_rag/
 │
 ├── app.py
-├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
 ├── .env
-├── .gitignore
+├── .env.example
+├── pyproject.toml
+├── uv.lock
 ├── README.md
 │
-├── data/
-│   └── PDFs uploaded by user
-│
 ├── chroma_db/
-│   └── Vector database
+│
+├── storage/
+│   └── chat_memory1.db
 │
 ├── src/
-│
+│   │
 │   ├── config.py
-│   ├── ingest.py
 │   ├── database.py
+│   ├── ingest.py
 │   ├── vectorstore.py
-│   ├── reranker.py
-│
+│   │
+│   ├── data/
+│   │   ├── attention.pdf
+│   │   ├── Profile.pdf
+│   │   └── ...
+│   │
 │   ├── rag/
+│   │   │
 │   │   ├── __init__.py
 │   │   ├── service.py
+│   │   ├── cache.py
 │   │   ├── retrievers.py
 │   │   ├── prompts.py
-│   │   ├── llm.py
-│   │   └── cache.py
+│   │   └── llm.py
+│   │
+│   ├── reranker/
+│   │   ├── __init__.py
+│   │   └── cross_encoder.py
+│   │
+│   ├── helpers/
+│   │   └── deduplication.py
 │   │
 │   ├── services/
 │   │   ├── session_service.py
 │   │   └── upload_service.py
 │   │
 │   ├── ui/
+│   │   │
+│   │   ├── __init__.py
 │   │   ├── main.py
-│   │   ├── chat.py
+│   │   ├── styles.py
 │   │   ├── sidebar.py
 │   │   ├── welcome.py
-│   │   └── styles.py
-│   │
-│   ├── helpers/
-│   │   └── deduplication.py
+│   │   └── chat.py
 │   │
 │   └── utils/
 │       └── citations.py
 │
-└── tests/
-    └── future test files
+├── tests/
+│   ├── test_rag.py
+│   ├── test_vectorstore.py
+│   └── test_ingestion.py
+│
+└── notebooks/
+    └── experimentation.ipynb
 
+```
+
+---
+
+## Running with Docker Compose
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd conversational_rag
+```
+
+---
+
+### 2. Create `.env`
+
+Create a `.env` file in the project root:
+
+```env
+OPENAI_API_KEY=your_openai_api_key
+HF_TOKEN=your_huggingface_token
+```
+
+---
+
+### 3. Build and Start the Application
+
+```bash
+docker compose up --build
+```
+
+Open the app in your browser:
+
+```text
+http://localhost:8501
+```
+
+---
+
+## PDF Storage
+
+Place PDFs inside:
+
+```text
+src/data/
+```
+
+These files are mounted into the Docker container automatically.
+
+---
+
+## Automatic Ingestion
+
+On first startup:
+
+- If `chroma_db/` is empty
+- The application automatically ingests all PDFs from `src/data/`
+
+---
+
+## Bulk Re-Ingestion
+
+If you manually add new PDFs into `src/data/` after the container is already running, run:
+
+```bash
+docker compose exec conversational-rag \
+.venv/bin/python -m src.ingest
+```
+
+This rebuilds the vector database with all available documents.
+
+---
+
+## Persistent Storage
+
+The following directories are persisted locally using Docker volumes:
+
+| Path | Purpose |
+|---|---|
+| `src/data/` | Uploaded PDFs |
+| `chroma_db/` | Chroma vector database |
+| `storage/` | SQLite chat history |
+
+Your data remains available even after restarting containers.
+
+---
+
+## Stop the Application
+
+```bash
+docker compose down
 ```
 
 ---

@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 
 from functools import lru_cache
@@ -20,8 +19,24 @@ from src.vectorstore import (
 )
 
 from src.rag.llm import llm
-from src.rag.prompts import contextualize_q_prompt
-from src.config import INITIAL_RETRIEVAL_K
+
+from src.rag.prompts import (
+    contextualize_q_prompt
+)
+
+from src.config import (
+    INITIAL_RETRIEVAL_K
+)
+
+
+def normalize_source_name(source: str) -> str:
+
+    if not source:
+        return ""
+
+    source = source.replace("\\", "/")
+
+    return source.split("/")[-1]
 
 
 @st.cache_resource
@@ -49,18 +64,26 @@ def get_retriever(selected_document=None):
         and selected_document != "All Documents"
     ):
 
-        search_kwargs["filter"] = {
-            "source": selected_document
-        }
-
         filtered_documents = [
-
             doc for doc in all_documents
-
-            if os.path.basename(
+            if normalize_source_name(
                 doc.metadata.get("source", "")
             ) == selected_document
         ]
+
+        matching_sources = list({
+            doc.metadata.get("source")
+            for doc in filtered_documents
+            if doc.metadata.get("source")
+        })
+
+        if matching_sources:
+
+            search_kwargs["filter"] = {
+                "source": {
+                    "$in": matching_sources
+                }
+            }
 
     vector_retriever = vectorstore.as_retriever(
         search_kwargs=search_kwargs
@@ -74,7 +97,7 @@ def get_retriever(selected_document=None):
         filtered_documents
     )
 
-    bm25_retriever.k = 4
+    bm25_retriever.k = INITIAL_RETRIEVAL_K
 
     ensemble_retriever = EnsembleRetriever(
         retrievers=[
@@ -95,7 +118,9 @@ def get_retriever(selected_document=None):
 @lru_cache(maxsize=10)
 def get_history_aware_retriever(selected_document: str):
 
-    retriever = get_retriever(selected_document)
+    retriever = get_retriever(
+        selected_document
+    )
 
     history_aware_retriever = (
         create_history_aware_retriever(

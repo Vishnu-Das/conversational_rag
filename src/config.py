@@ -1,27 +1,87 @@
-from dotenv import load_dotenv
 import os
 
+from dotenv import load_dotenv
+
 load_dotenv()
+
+# =========================
+# API KEYS
+# =========================
 
 OPENAI_API_KEY = os.getenv(
     "OPENAI_API_KEY"
 )
 
-HF_TOKEN = os.getenv("HF_TOKEN")
+HF_TOKEN = os.getenv(
+    "HF_TOKEN"
+)
 
-MODEL_NAME = "gpt-3.5-turbo"
+# =========================
+# MODEL CONFIG
+# =========================
 
-CHUNK_SIZE = 1000
+MODEL_NAME = os.getenv(
+    "MODEL_NAME",
+    "gpt-3.5-turbo"
+)
 
-CHUNK_OVERLAP = 200
+RERANKING_MODEL_NAME = os.getenv(
+    "RERANKING_MODEL_NAME",
+    "cross-encoder/ms-marco-MiniLM-L-6-v2"
+)
 
-VECTOR_DB_DIR = "chroma_db"
+# =========================
+# CHUNKING CONFIG
+# =========================
 
-COLLECTION_NAME = "pdf_docs"
+CHUNK_SIZE = int(
+    os.getenv("CHUNK_SIZE", 1000)
+)
 
-DATA_DIR = "src/data"
+CHUNK_OVERLAP = int(
+    os.getenv("CHUNK_OVERLAP", 200)
+)
 
-RERANK_TOP_K = 4
-INITIAL_RETRIEVAL_K = 10
+# =========================
+# RETRIEVAL CONFIG
+# =========================
 
-RERANKING_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+INITIAL_RETRIEVAL_K = int(
+    os.getenv("INITIAL_RETRIEVAL_K", 10)
+)
+
+RERANK_TOP_K = int(
+    os.getenv("RERANK_TOP_K", 4)
+)
+
+# =========================
+# VECTOR DATABASE
+# =========================
+
+VECTOR_DB_DIR = os.getenv(
+    "VECTOR_DB_DIR",
+    "chroma_db"
+)
+
+COLLECTION_NAME = os.getenv(
+    "COLLECTION_NAME",
+    "pdf_docs"
+)
+
+# =========================
+# DATA DIRECTORY
+# =========================
+
+DATA_DIR = os.getenv(
+    "DATA_DIR",
+    "src/data"
+)
+
+# =========================
+# CHAT DIRECTORY
+# =========================
+
+CHAT_DB_PATH = os.getenv(
+    "CHAT_DB_PATH",
+    "storage/chat_memory1.db"
+)
