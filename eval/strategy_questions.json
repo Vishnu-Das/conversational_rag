@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is multi-head attention?",
+    "selected_document": "attention.pdf",
+    "expected_source": "attention.pdf",
+    "expected_keywords": [
+      "queries",
+      "keys",
+      "values",
+      "attention"
+    ]
+  },
+  {
+    "question": "Summarize this document",
+    "selected_document": "attention.pdf",
+    "expected_source": "attention.pdf",
+    "expected_keywords": [
+      "transformer",
+      "attention",
+      "encoder",
+      "decoder"
+    ]
+  }
+]

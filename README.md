@@ -214,6 +214,92 @@ docker compose exec conversational-rag \
 
 ---
 
+## Retrieval Strategy Benchmark
+
+The system supports multiple pluggable retrieval strategies using a strategy-based architecture.
+
+### Implemented Strategies
+
+- **Hybrid Retrieval**
+  - Semantic vector search
+  - BM25 retrieval
+  - Ensemble retrieval
+  - Multi-query expansion
+  - Cross-encoder reranking
+
+- **Parent-Child Retrieval**
+  - Parent-child chunking
+  - Semantic child retrieval
+  - Parent document reconstruction
+  - Cross-encoder reranking
+
+---
+
+### Benchmark Results
+
+| Question | Strategy | Docs Returned | Context Length | Latency | Keyword Score |
+|---|---|---|---|---|---|
+| What is multi-head attention? | Hybrid | 4 | 6623 | 2391 ms | 1.0 |
+| What is multi-head attention? | Parent-Child | 2 | 4942 | 523 ms | 1.0 |
+| Summarize this document | Hybrid | 4 | 7654 | 2276 ms | 1.0 |
+| Summarize this document | Parent-Child | 2 | 4879 | 418 ms | 1.0 |
+
+---
+
+### Observations
+
+- Parent-child retrieval achieved the same retrieval quality with:
+  - fewer retrieved documents
+  - lower latency
+  - smaller final context
+
+- Hybrid retrieval provides:
+  - stronger query expansion
+  - exact keyword matching via BM25
+  - broader retrieval coverage
+
+- Parent-child retrieval provides:
+  - richer semantic context
+  - better section-level retrieval
+  - faster retrieval performance
+
+---
+
+### Retrieval Architecture
+
+```text
+Retrieval Strategy Layer
+├── Hybrid Retrieval
+│   ├── Vector Search
+│   ├── BM25
+│   ├── MultiQuery
+│   └── Cross-Encoder Reranking
+│
+└── Parent-Child Retrieval
+    ├── Parent Chunks
+    ├── Child Chunks
+    ├── Semantic Retrieval
+    └── Cross-Encoder Reranking
+```
+
+---
+
+### Strategy Selection
+
+Retrieval strategy can be switched dynamically using environment configuration:
+
+```env
+RETRIEVAL_STRATEGY=hybrid
+```
+
+or
+
+```env
+RETRIEVAL_STRATEGY=parent_child
+```
+
+---
+
 ## Project Structure
 
 ```text
