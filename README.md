@@ -1,8 +1,12 @@
 # Conversational RAG
 
-Production-style Conversational Retrieval-Augmented Generation (RAG) system built with LangChain, ChromaDB, Streamlit, and OpenAI.
+Conversational RAG is an intelligent document assistant for grounded question answering and conversational interaction across PDF documents.
 
-The project focuses on advanced retrieval quality, observability, evaluation, and containerized deployment beyond basic vector search implementations.
+The system combines hybrid retrieval, multi-query search expansion, and cross-encoder reranking to improve retrieval accuracy and response quality.
+
+It supports document-specific querying, streaming responses, source citations, automated evaluation pipelines, observability with tracing, and containerized deployment.
+
+The project focuses on production-oriented RAG engineering concepts such as retrieval optimization, answer grounding, hallucination reduction, evaluation, and debugging workflows beyond basic vector search systems.
 
 ---
 
