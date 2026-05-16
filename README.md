@@ -19,11 +19,15 @@ The application supports:
 
 ---
 
-<img width="1554" height="1249" alt="localhost_8501_ (1)" src="https://github.com/user-attachments/assets/5824078f-8ad9-4733-a8b7-70a4631fbb5c" />
+<img width="1557" height="1249" alt="localhost_8501_ (3)" src="https://github.com/user-attachments/assets/f094f50e-b7fe-4827-aefc-d325137da6e5" />
 
 ---
 
-<img width="1540" height="1242" alt="localhost_8501_" src="https://github.com/user-attachments/assets/ab41ba9c-df16-4b79-b29c-24384dd2e310" />
+<img width="1564" height="1256" alt="localhost_8501_ (4)" src="https://github.com/user-attachments/assets/2b1ab3d0-9dbf-45ec-955f-d3e1ad2d8682" />
+
+---
+
+<img width="1550" height="973" alt="smith langchain com_o_de94ea1f-1328-4c89-b2de-15e49b9eb08e_projects_p_5ab235e2-224e-4cc6-b2f2-61a273f1b794_peek=20260516T104924Z019e3067-b812-7212-a24e-704f503738b3 peeked_trace=20260516T104921103687Z019e3067-abcf-" src="https://github.com/user-attachments/assets/39b0e105-02ca-42e6-b308-53db689c95a6" />
 
 ---
 
