@@ -4,7 +4,7 @@ import streamlit as st
 
 from src.config import DATA_DIR
 from src.ingest import ingest_single_document
-from src.rag import reset_rag_caches
+from src.rag.cache import reset_rag_caches
 
 
 def handle_file_upload():

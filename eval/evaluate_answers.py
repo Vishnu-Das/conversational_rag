@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from src.rag import stream_response
+from src.rag.service import stream_response
 from langchain_core.messages import HumanMessage
 
 

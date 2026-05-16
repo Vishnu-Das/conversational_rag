@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 
-from src.rag import stream_response
+from src.rag.service import stream_response
 from src.config import MODEL_NAME
 
 

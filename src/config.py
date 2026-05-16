@@ -85,3 +85,30 @@ CHAT_DB_PATH = os.getenv(
     "CHAT_DB_PATH",
     "storage/chat_memory1.db"
 )
+
+# =========================
+# Parent-child retrieval configuration
+# =========================
+PARENT_CHUNK_SIZE = 2500
+PARENT_CHUNK_OVERLAP = 200
+
+CHILD_CHUNK_SIZE = 400
+CHILD_CHUNK_OVERLAP = 50
+
+PARENT_CHILD_COLLECTION_NAME = (
+    "parent_child_docs"
+)
+
+PARENT_DOCSTORE_DIR = (
+    "storage/parent_docstore"
+)
+
+# =========================
+# Retrieval strategy
+# =========================
+RETRIEVAL_STRATEGY = os.getenv(
+    "RETRIEVAL_STRATEGY",
+    "hybrid"
+)
+
+PARENT_CHILD_RETRIEVAL_K = 4

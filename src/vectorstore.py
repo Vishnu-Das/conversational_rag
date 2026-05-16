@@ -32,13 +32,7 @@ embeddings = OpenAIEmbeddings()
 
 def load_and_split_documents(): ## This function loads documents from the specified directory, splits them into chunks, and returns the list of chunks.
 
-    loader = DirectoryLoader(
-        DATA_DIR,
-        glob="**/*.pdf",
-        loader_cls=PyPDFLoader
-    )
-
-    documents = loader.load()
+    documents = load_documents()
 
     # text_splitter = (
     #     RecursiveCharacterTextSplitter(
@@ -102,3 +96,13 @@ def split_documents(documents):
     return text_splitter.split_documents(
         documents
     )
+
+def load_documents():
+
+    loader = DirectoryLoader(
+        DATA_DIR,
+        glob="**/*.pdf",
+        loader_cls=PyPDFLoader
+    )
+
+    return loader.load()

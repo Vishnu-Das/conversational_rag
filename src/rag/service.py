@@ -1,18 +1,22 @@
-import os
-from pathlib import PureWindowsPath, PurePosixPath
 from typing import List
 
 from langchain_core.messages import BaseMessage
+from langsmith import traceable
 
 from src.rag.prompts import qa_prompt
 from src.rag.llm import llm
+
 from src.rag.retrievers import (
-    get_history_aware_retriever,
     get_all_documents
 )
+
+from src.rag.retrieval.factory import (
+    RetrievalStrategyFactory
+)
+
 from src.rag.pipeline import process_documents
-from src.rag.cache import cached_retrieval
-from langsmith import traceable
+
+from src.config import RETRIEVAL_STRATEGY
 
 
 DOCUMENT_LEVEL_KEYWORDS = [
@@ -30,6 +34,7 @@ DOCUMENT_LEVEL_KEYWORDS = [
 
 
 def normalize_source_name(source: str) -> str:
+
     if not source:
         return ""
 
@@ -38,7 +43,10 @@ def normalize_source_name(source: str) -> str:
     return source.split("/")[-1]
 
 
-def is_document_level_request(user_input: str) -> bool:
+def is_document_level_request(
+    user_input: str
+) -> bool:
+
     user_input = user_input.lower()
 
     return any(
@@ -46,11 +54,16 @@ def is_document_level_request(user_input: str) -> bool:
         for keyword in DOCUMENT_LEVEL_KEYWORDS
     )
 
-@traceable(name="Get Selected Document Chunks", run_type="retriever")
+
+@traceable(
+    name="Get Selected Document Chunks",
+    run_type="retriever"
+)
 def get_selected_document_chunks(
     selected_document: str,
     max_chunks: int = 12
 ):
+
     all_documents = get_all_documents()
 
     docs = [
@@ -71,7 +84,11 @@ def build_context(docs):
         for doc in docs
     ])
 
-@traceable(name="RAG Stream Response", run_type="chain")
+
+@traceable(
+    name="RAG Stream Response",
+    run_type="chain"
+)
 def stream_response(
     user_input: str,
     chat_history: List[BaseMessage],
@@ -94,34 +111,31 @@ def stream_response(
 
     else:
 
-        history_aware_retriever = (
-            get_history_aware_retriever(
-                selected_document
+        retrieval_strategy = (
+            RetrievalStrategyFactory.get_strategy(
+                RETRIEVAL_STRATEGY
             )
         )
 
-        if not chat_history:
-
-            retrieved_docs = cached_retrieval(
-                user_input,
-                selected_document or "All Documents"
-            )
-
-        else:
-
-            retrieved_docs = (
-                history_aware_retriever.invoke({
-                    "input": user_input,
-                    "chat_history": chat_history,
-                })
-            )
+        retrieved_docs = retrieval_strategy.retrieve(
+            query=user_input,
+            chat_history=chat_history,
+            selected_document=selected_document
+        )
 
         docs = process_documents(
             user_input,
             retrieved_docs
         )
 
-    context = build_context(docs)
+        # print("\n========== FINAL DOCS ==========")
+        # for doc in docs:
+        #     print(doc.metadata)
+        # print("================================\n")
+
+    context = build_context(
+        docs
+    )
 
     messages = qa_prompt.invoke({
         "input": user_input,

@@ -10,7 +10,7 @@ from langchain_core.messages import (
 
 from src.database import save_message
 
-from src.rag import stream_response
+from src.rag.service import stream_response
 
 from src.utils.citations import (
     extract_sources
