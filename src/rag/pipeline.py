@@ -1,3 +1,5 @@
+from langsmith import traceable
+
 from src.helpers.deduplication import (
     deduplicate_docs
 )
@@ -13,6 +15,7 @@ from src.config import (
 # from src.compression import compress_documents
 
 
+@traceable(name="Process Documents")
 def process_documents(
     user_input,
     documents

@@ -1,6 +1,8 @@
 from typing import List
 from langchain_core.documents import Document
+from langsmith import traceable
 
+@traceable(name="Deduplicate Documents")
 def deduplicate_docs(docs: List[Document]) -> List[Document]:
 
     seen = set()

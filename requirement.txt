@@ -16,3 +16,4 @@ torchvision
 rank-bm25
 langchain_experimental
 huggingface_hub
+langsmith

@@ -100,68 +100,81 @@ conversational_rag/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
+├── .gitignore
 ├── .env
 ├── .env.example
+├── README.md
 ├── pyproject.toml
 ├── uv.lock
-├── README.md
 │
 ├── chroma_db/
+│   ├── chroma.sqlite3
+│   └── ...
 │
 ├── storage/
 │   └── chat_memory1.db
 │
-├── src/
-│   │
-│   ├── config.py
-│   ├── database.py
-│   ├── ingest.py
-│   ├── vectorstore.py
-│   │
-│   ├── data/
-│   │   ├── attention.pdf
-│   │   ├── Profile.pdf
-│   │   └── ...
-│   │
-│   ├── rag/
-│   │   │
-│   │   ├── __init__.py
-│   │   ├── service.py
-│   │   ├── cache.py
-│   │   ├── retrievers.py
-│   │   ├── prompts.py
-│   │   └── llm.py
-│   │
-│   ├── reranker/
-│   │   ├── __init__.py
-│   │   └── cross_encoder.py
-│   │
-│   ├── helpers/
-│   │   └── deduplication.py
-│   │
-│   ├── services/
-│   │   ├── session_service.py
-│   │   └── upload_service.py
-│   │
-│   ├── ui/
-│   │   │
-│   │   ├── __init__.py
-│   │   ├── main.py
-│   │   ├── styles.py
-│   │   ├── sidebar.py
-│   │   ├── welcome.py
-│   │   └── chat.py
-│   │
-│   └── utils/
-│       └── citations.py
+├── eval/
+│   ├── questions.json
+│   ├── evaluate_retrieval.py
+│   ├── evaluate_answers.py
+│   └── evaluate_with_judge.py
+│
+├── notebooks/
+│   └── experimentation.ipynb
 │
 ├── tests/
 │   ├── test_rag.py
-│   ├── test_vectorstore.py
-│   └── test_ingestion.py
+│   ├── test_ingestion.py
+│   └── test_vectorstore.py
 │
-└── notebooks/
-    └── experimentation.ipynb
+└── src/
+    │
+    ├── __init__.py
+    │
+    ├── config.py
+    ├── database.py
+    ├── ingest.py
+    ├── vectorstore.py
+    │
+    ├── data/
+    │   ├── attention.pdf
+    │   ├── Profile.pdf
+    │   └── ...
+    │
+    ├── rag/
+    │   │
+    │   ├── __init__.py
+    │   ├── llm.py
+    │   ├── prompts.py
+    │   ├── retrievers.py
+    │   ├── pipeline.py
+    │   ├── cache.py
+    │   └── service.py
+    │
+    ├── reranker/
+    │   ├── __init__.py
+    │   └── cross_encoder.py
+    │
+    ├── helpers/
+    │   └── deduplication.py
+    │
+    ├── services/
+    │   ├── __init__.py
+    │   ├── session_service.py
+    │   └── upload_service.py
+    │
+    ├── ui/
+    │   │
+    │   ├── __init__.py
+    │   ├── main.py
+    │   ├── sidebar.py
+    │   ├── welcome.py
+    │   ├── chat.py
+    │   └── styles.py
+    │
+    └── utils/
+        └── citations.py
 
 ```
 

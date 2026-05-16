@@ -12,6 +12,7 @@ from src.rag.retrievers import (
 )
 from src.rag.pipeline import process_documents
 from src.rag.cache import cached_retrieval
+from langsmith import traceable
 
 
 DOCUMENT_LEVEL_KEYWORDS = [
@@ -45,7 +46,7 @@ def is_document_level_request(user_input: str) -> bool:
         for keyword in DOCUMENT_LEVEL_KEYWORDS
     )
 
-
+@traceable(name="Get Selected Document Chunks", run_type="retriever")
 def get_selected_document_chunks(
     selected_document: str,
     max_chunks: int = 12
@@ -70,7 +71,7 @@ def build_context(docs):
         for doc in docs
     ])
 
-
+@traceable(name="RAG Stream Response", run_type="chain")
 def stream_response(
     user_input: str,
     chat_history: List[BaseMessage],

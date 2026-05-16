@@ -1,6 +1,7 @@
 from sentence_transformers import CrossEncoder
 from src.config import RERANKING_MODEL_NAME
 from huggingface_hub import login
+from langsmith import traceable
 import streamlit as st
 # from src.config import HF_TOKEN
 
@@ -17,6 +18,7 @@ reranker_model = load_reranker()
 
 
 ## Reranking function that takes a query and a list of documents, computes relevance scores using the CrossEncoder model, and returns the top-k most relevant documents.
+@traceable(name="Rerank Documents")
 def rerank_documents(
     query,
     documents,
