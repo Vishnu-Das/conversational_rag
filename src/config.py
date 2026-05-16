@@ -103,12 +103,18 @@ PARENT_DOCSTORE_DIR = (
     "storage/parent_docstore"
 )
 
+PARENT_CHILD_RETRIEVAL_K = 4
+
 # =========================
-# Retrieval strategy
+# Retrieval routing
 # =========================
+
 RETRIEVAL_STRATEGY = os.getenv(
     "RETRIEVAL_STRATEGY",
-    "hybrid"
+    "auto"
 )
 
-PARENT_CHILD_RETRIEVAL_K = 4
+DEFAULT_RETRIEVAL_STRATEGY = os.getenv(
+    "DEFAULT_RETRIEVAL_STRATEGY",
+    "hybrid"
+)

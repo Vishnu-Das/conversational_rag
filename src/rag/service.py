@@ -18,19 +18,9 @@ from src.rag.pipeline import process_documents
 
 from src.config import RETRIEVAL_STRATEGY
 
-
-DOCUMENT_LEVEL_KEYWORDS = [
-    "summarize",
-    "summary",
-    "summarise",
-    "overview",
-    "key concepts",
-    "important topics",
-    "main ideas",
-    "study notes",
-    "explain this document",
-    "explain the document",
-]
+from src.rag.retrieval.router import (
+    route_retrieval_strategy
+)
 
 
 def normalize_source_name(source: str) -> str:
@@ -43,22 +33,7 @@ def normalize_source_name(source: str) -> str:
     return source.split("/")[-1]
 
 
-def is_document_level_request(
-    user_input: str
-) -> bool:
-
-    user_input = user_input.lower()
-
-    return any(
-        keyword in user_input
-        for keyword in DOCUMENT_LEVEL_KEYWORDS
-    )
-
-
-@traceable(
-    name="Get Selected Document Chunks",
-    run_type="retriever"
-)
+@traceable( name="Get Selected Document Chunks", run_type="retriever" )
 def get_selected_document_chunks(
     selected_document: str,
     max_chunks: int = 12
@@ -94,44 +69,36 @@ def stream_response(
     chat_history: List[BaseMessage],
     selected_document: str = None
 ):
+    strategy_name = RETRIEVAL_STRATEGY
 
-    is_doc_level = is_document_level_request(
-        user_input
-    )
-
-    if (
-        is_doc_level
-        and selected_document
-        and selected_document != "All Documents"
-    ):
-
-        docs = get_selected_document_chunks(
-            selected_document
-        )
-
-    else:
-
-        retrieval_strategy = (
-            RetrievalStrategyFactory.get_strategy(
-                RETRIEVAL_STRATEGY
-            )
-        )
-
-        retrieved_docs = retrieval_strategy.retrieve(
+    if RETRIEVAL_STRATEGY == "auto":
+        strategy_name = route_retrieval_strategy(
             query=user_input,
-            chat_history=chat_history,
             selected_document=selected_document
         )
+    print(f"Using retrieval strategy: {strategy_name}")
 
-        docs = process_documents(
-            user_input,
-            retrieved_docs
+    retrieval_strategy = (
+        RetrievalStrategyFactory.get_strategy(
+            strategy_name
         )
+    )
 
-        # print("\n========== FINAL DOCS ==========")
-        # for doc in docs:
-        #     print(doc.metadata)
-        # print("================================\n")
+    retrieved_docs = retrieval_strategy.retrieve(
+        query=user_input,
+        chat_history=chat_history,
+        selected_document=selected_document
+    )
+
+    docs = process_documents(
+        user_input,
+        retrieved_docs
+    )
+
+    # print("\n========== FINAL DOCS ==========")
+    # for doc in docs:
+    #     print(doc.metadata)
+    # print("================================\n")
 
     context = build_context(
         docs

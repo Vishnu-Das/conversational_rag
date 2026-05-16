@@ -17,6 +17,10 @@ from src.rag.service import (
     build_context
 )
 
+from src.rag.retrieval.router import (
+    route_retrieval_strategy
+)
+
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
@@ -24,7 +28,8 @@ BASE_DIR = Path(__file__).parent
 
 STRATEGIES = [
     RetrievalStrategyFactory.HYBRID,
-    RetrievalStrategyFactory.PARENT_CHILD
+    RetrievalStrategyFactory.PARENT_CHILD,
+    "auto"
 ]
 
 
@@ -62,9 +67,18 @@ def evaluate_strategy(
         []
     )
 
+    actual_strategy = strategy_name
+
+    if strategy_name == "auto":
+
+        actual_strategy = route_retrieval_strategy(
+            query=question,
+            selected_document=selected_document
+        )
+
     strategy = (
         RetrievalStrategyFactory.get_strategy(
-            strategy_name
+            actual_strategy
         )
     )
 
@@ -123,6 +137,7 @@ def evaluate_strategy(
 
     return {
         "strategy": strategy_name,
+        "actual_strategy": actual_strategy,
         "question": question,
         "selected_document": selected_document,
         "doc_count": len(final_docs),
@@ -175,6 +190,7 @@ def main():
 
             print(status)
             print("Strategy:", result["strategy"])
+            print("Resolved Strategy:", result["actual_strategy"])
             print("Doc Count:", result["doc_count"])
             print("Sources:", result["retrieved_sources"])
             print("Keyword Matches:", result["keyword_matches"])
