@@ -29,6 +29,18 @@ FACT_LOOKUP_KEYWORDS = [
     "which",
 ]
 
+CONCEPTUAL_QUERY_KEYWORDS = [
+    "explain",
+    "how",
+    "why",
+    "architecture",
+    "workflow",
+    "compare",
+    "difference",
+    "advantages",
+    "tradeoffs",
+]
+
 
 def is_document_level_query(
     query: str
@@ -53,6 +65,17 @@ def is_fact_lookup_query(
         for keyword in FACT_LOOKUP_KEYWORDS
     )
 
+def is_conceptual_query(
+    query: str
+) -> bool:
+
+    query = query.lower()
+
+    return any(
+        keyword in query
+        for keyword in CONCEPTUAL_QUERY_KEYWORDS
+    )
+
 
 def route_retrieval_strategy(
     query: str,
@@ -60,11 +83,12 @@ def route_retrieval_strategy(
 ) -> str:
 
     if is_document_level_query(query):
-
         return RetrievalStrategyFactory.PARENT_CHILD
 
+    if is_conceptual_query(query):
+        return RetrievalStrategyFactory.FUSION
+    
     if is_fact_lookup_query(query):
-
         return RetrievalStrategyFactory.HYBRID
 
     if (

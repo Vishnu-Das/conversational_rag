@@ -216,87 +216,169 @@ docker compose exec conversational-rag \
 
 ## Retrieval Strategy Benchmark
 
-The system supports multiple pluggable retrieval strategies using a strategy-based architecture.
+The system supports multiple pluggable retrieval strategies through a modular strategy-based retrieval orchestration layer.
 
-### Implemented Strategies
+### Supported Retrieval Strategies
 
-- **Hybrid Retrieval**
-  - Semantic vector search
-  - BM25 retrieval
-  - Ensemble retrieval
-  - Multi-query expansion
-  - Cross-encoder reranking
-
-- **Parent-Child Retrieval**
-  - Parent-child chunking
-  - Semantic child retrieval
-  - Parent document reconstruction
-  - Cross-encoder reranking
+| Strategy | Primary Use Case |
+|---|---|
+| **Hybrid Retrieval** | Precise factual lookups and semantic search |
+| **Parent-Child Retrieval** | Document-level understanding, summaries, and broader contextual retrieval |
+| **Fusion Retrieval** | Conceptual, comparative, and architecture-level queries |
+| **Auto Routing** | Dynamically selects the optimal retrieval strategy based on query intent |
 
 ---
 
-### Benchmark Results
+## Benchmark Results
 
-| Question | Strategy | Docs Returned | Context Length | Latency | Keyword Score |
+### Query: *What is multi-head attention?*
+
+| Strategy | Query Type | Docs Returned | Context Length | Latency | Keyword Score |
 |---|---|---|---|---|---|
-| What is multi-head attention? | Hybrid | 4 | 6623 | 2391 ms | 1.0 |
-| What is multi-head attention? | Parent-Child | 2 | 4942 | 523 ms | 1.0 |
-| Summarize this document | Hybrid | 4 | 7654 | 2276 ms | 1.0 |
-| Summarize this document | Parent-Child | 2 | 4879 | 418 ms | 1.0 |
+| Hybrid | Factual | 4 | 6623 | 2466 ms | 1.0 |
+| Parent-Child | Document-Level | 2 | 4942 | 317 ms | 1.0 |
+| Fusion | Conceptual | 4 | 8624 | 2438 ms | 1.0 |
+| Auto → Hybrid | Dynamic Routing | 4 | 6623 | 2007 ms | 1.0 |
 
 ---
 
-### Observations
+### Query: *Summarize this document*
 
-- Parent-child retrieval achieved the same retrieval quality with:
-  - fewer retrieved documents
+| Strategy | Query Type | Docs Returned | Context Length | Latency | Keyword Score |
+|---|---|---|---|---|---|
+| Hybrid | Factual | 4 | 8306 | 2163 ms | 1.0 |
+| Parent-Child | Document-Level | 2 | 4879 | 702 ms | 1.0 |
+| Fusion | Conceptual | 4 | 9077 | 2301 ms | 1.0 |
+| Auto → Parent-Child | Dynamic Routing | 2 | 4879 | 1413 ms | 1.0 |
+
+---
+
+## Observations
+
+### Hybrid Retrieval
+- Combines:
+  - semantic vector retrieval
+  - BM25 keyword retrieval
+  - multi-query expansion
+  - cross-encoder reranking
+- Performs strongly for:
+  - factual questions
+  - exact lookups
+  - keyword-sensitive retrieval
+- Provides broader retrieval coverage with higher precision.
+
+---
+
+### Parent-Child Retrieval
+- Uses:
+  - semantic child chunk retrieval
+  - parent document reconstruction
+  - cross-encoder reranking
+- Achieved:
   - lower latency
-  - smaller final context
-
-- Hybrid retrieval provides:
-  - stronger query expansion
-  - exact keyword matching via BM25
-  - broader retrieval coverage
-
-- Parent-child retrieval provides:
-  - richer semantic context
-  - better section-level retrieval
-  - faster retrieval performance
+  - fewer retrieved documents
+  - efficient contextual retrieval
+- Performs strongly for:
+  - summaries
+  - study notes
+  - key concept extraction
+  - document-level understanding
 
 ---
 
-### Retrieval Architecture
+### Fusion Retrieval
+- Combines:
+  - Hybrid Retrieval
+  - Parent-Child Retrieval
+  - retrieval fusion
+  - reranking over combined results
+- Performs strongly for:
+  - conceptual questions
+  - architecture discussions
+  - comparative reasoning
+  - broad contextual queries
+- Provides richer context at the cost of higher retrieval latency.
+
+---
+
+### Auto Routing
+The system dynamically routes queries to the most suitable retrieval strategy.
+
+| Query Pattern | Selected Strategy |
+|---|---|
+| Factual Questions | Hybrid Retrieval |
+| Summaries / Key Concepts / Study Notes | Parent-Child Retrieval |
+| Conceptual / Comparative / Architecture Questions | Fusion Retrieval |
+
+Examples:
 
 ```text
-Retrieval Strategy Layer
-├── Hybrid Retrieval
-│   ├── Vector Search
-│   ├── BM25
-│   ├── MultiQuery
-│   └── Cross-Encoder Reranking
-│
-└── Parent-Child Retrieval
-    ├── Parent Chunks
-    ├── Child Chunks
-    ├── Semantic Retrieval
-    └── Cross-Encoder Reranking
+"What is multi-head attention?"
+→ Hybrid Retrieval
+
+"Summarize this document"
+→ Parent-Child Retrieval
+
+"Explain transformer architecture"
+→ Fusion Retrieval
 ```
 
 ---
 
-### Strategy Selection
+## Retrieval Architecture
 
-Retrieval strategy can be switched dynamically using environment configuration:
+```text
+Query Router
+    ↓
+Retrieval Strategy Factory
+    ├── Hybrid Retrieval
+    │     ├── Vector Search
+    │     ├── BM25
+    │     ├── MultiQuery Retrieval
+    │     └── Cross-Encoder Reranking
+    │
+    ├── Parent-Child Retrieval
+    │     ├── Parent Chunks
+    │     ├── Child Chunks
+    │     ├── Semantic Retrieval
+    │     └── Cross-Encoder Reranking
+    │
+    └── Fusion Retrieval
+          ├── Hybrid Retrieval
+          ├── Parent-Child Retrieval
+          ├── Retrieval Fusion
+          └── Cross-Encoder Reranking
+```
+
+---
+
+## Strategy Configuration
+
+Retrieval strategy can be configured dynamically using environment variables.
+
+### Fixed Strategy
 
 ```env
 RETRIEVAL_STRATEGY=hybrid
 ```
 
-or
-
 ```env
 RETRIEVAL_STRATEGY=parent_child
 ```
+
+```env
+RETRIEVAL_STRATEGY=fusion
+```
+
+---
+
+### Automatic Routing
+
+```env
+RETRIEVAL_STRATEGY=auto
+```
+
+The router automatically selects the optimal retrieval strategy based on query intent.
 
 ---
 

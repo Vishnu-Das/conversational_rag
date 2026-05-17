@@ -29,6 +29,7 @@ BASE_DIR = Path(__file__).parent
 STRATEGIES = [
     RetrievalStrategyFactory.HYBRID,
     RetrievalStrategyFactory.PARENT_CHILD,
+    RetrievalStrategyFactory.FUSION,
     "auto"
 ]
 
