@@ -20,6 +20,10 @@ from src.ui.retrieval_inspector import (
     render_retrieval_inspector
 )
 
+from src.config import (
+    ENABLE_RETRIEVAL_INSPECTOR
+)
+
 def render_chat_history():
 
     for msg in st.session_state.chat_history:
@@ -180,10 +184,10 @@ def handle_chat_input(selected_document):
                     source_html,
                     unsafe_allow_html=True
                 )
-
-    render_retrieval_inspector(
-        st.session_state.get("last_retrieval_debug")
-    )
+    if ENABLE_RETRIEVAL_INSPECTOR:
+        render_retrieval_inspector(
+            st.session_state.get("last_retrieval_debug")
+        )
 
     save_message(
         session_id,

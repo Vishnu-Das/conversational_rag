@@ -11,7 +11,8 @@ from src.vectorstore import (
 
 from src.config import (
     VECTOR_DB_DIR,
-    COLLECTION_NAME
+    COLLECTION_NAME,
+    EMBEDDING_MODEL_NAME
 )
 
 from src.rag.retrieval.parent_child.ingestion import (
@@ -30,7 +31,9 @@ def ingest_documents():
 
     chunks = load_and_split_documents()
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(
+        model=EMBEDDING_MODEL_NAME
+    )
 
     Chroma.from_documents(
         documents=chunks,

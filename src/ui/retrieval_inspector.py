@@ -232,6 +232,35 @@ def render_retrieval_inspector(
 
         if debug_info.router_reason:
 
+            st.markdown(
+                "## Router Decision"
+            )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                render_metric_card(
+                    "Router Type",
+                    debug_info.router_type
+                )
+
+            with col2:
+
+                confidence = (
+                    f"{round(debug_info.router_confidence * 100, 1)}%"
+                    if debug_info.router_confidence
+                    is not None
+                    else "N/A"
+                )
+
+                render_metric_card(
+                    "Router Confidence",
+                    confidence
+                )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+
             st.info(
                 debug_info.router_reason
             )

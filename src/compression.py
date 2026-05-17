@@ -3,10 +3,10 @@ from langchain_classic.retrievers.document_compressors import (
     LLMChainExtractor
 )
 
-from src.config import MODEL_NAME
+from src.config import COMPRESSION_MODEL_NAME
 
 llm = ChatOpenAI(
-    model=MODEL_NAME,
+    model=COMPRESSION_MODEL_NAME,
     temperature=0
 )
 

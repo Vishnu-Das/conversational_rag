@@ -6,25 +6,17 @@ from typing import List, Dict, Any
 class RetrievalDebugInfo:
 
     query: str
-
     selected_document: str | None = None
-
     requested_strategy: str | None = None
-
     resolved_strategy: str | None = None
-
     router_reason: str | None = None
-
+    router_type: str | None = None
+    router_confidence: float | None = None
     retrieval_latency_ms: float | None = None
-
     rerank_latency_ms: float | None = None
-
     generation_latency_ms: float | None = None
-
     total_latency_ms: float | None = None
-
     retrieved_docs_count: int = 0
-
     final_docs_count: int = 0
 
     retrieved_docs: List[Dict[str, Any]] = field(

@@ -20,14 +20,24 @@ HF_TOKEN = os.getenv(
 # MODEL CONFIG
 # =========================
 
-MODEL_NAME = os.getenv(
-    "MODEL_NAME",
+MAIN_MODEL_NAME = os.getenv(
+    "MAIN_MODEL_NAME",
+    "gpt-3.5-turbo"
+)
+
+COMPRESSION_MODEL_NAME = os.getenv(
+    "COMPRESSION_MODEL_NAME",
     "gpt-3.5-turbo"
 )
 
 RERANKING_MODEL_NAME = os.getenv(
     "RERANKING_MODEL_NAME",
     "cross-encoder/ms-marco-MiniLM-L-6-v2"
+)
+
+EMBEDDING_MODEL_NAME = os.getenv(
+    "EMBEDDING_MODEL_NAME",
+    "text-embedding-3-small"
 )
 
 # =========================
@@ -117,4 +127,23 @@ RETRIEVAL_STRATEGY = os.getenv(
 DEFAULT_RETRIEVAL_STRATEGY = os.getenv(
     "DEFAULT_RETRIEVAL_STRATEGY",
     "hybrid"
+)
+
+# =========================
+# Retrieval Inspector
+# =========================
+ENABLE_RETRIEVAL_INSPECTOR = (
+    os.getenv(
+        "ENABLE_RETRIEVAL_INSPECTOR",
+        "true"
+    ).lower() == "true"
+)
+
+# =========================
+# Router configuration
+# =========================
+
+ROUTER_TYPE = os.getenv(
+    "ROUTER_TYPE",
+    "rule_based"
 )

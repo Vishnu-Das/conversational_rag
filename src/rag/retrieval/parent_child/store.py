@@ -15,7 +15,8 @@ from src.config import (
     PARENT_CHUNK_SIZE,
     PARENT_CHUNK_OVERLAP,
     CHILD_CHUNK_SIZE,
-    CHILD_CHUNK_OVERLAP
+    CHILD_CHUNK_OVERLAP,
+    EMBEDDING_MODEL_NAME
 )
 
 
@@ -37,7 +38,9 @@ def get_child_splitter():
 
 def get_parent_child_vectorstore():
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(
+        model=EMBEDDING_MODEL_NAME
+    )
 
     return Chroma(
         persist_directory=VECTOR_DB_DIR,

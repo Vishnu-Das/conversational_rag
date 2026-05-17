@@ -14,7 +14,7 @@
 # from langchain_classic.retrievers import (EnsembleRetriever,MultiQueryRetriever)
 # from langchain_openai import ChatOpenAI
 # from src.vectorstore import (load_vectorstore,load_and_split_documents,load_documents_from_vectorstore)
-# from src.config import (MODEL_NAME,RERANK_TOP_K,INITIAL_RETRIEVAL_K)
+# from src.config import (MAIN_MODEL_NAME,RERANK_TOP_K,INITIAL_RETRIEVAL_K)
 # from src.reranker import (rerank_documents)
 # from src.helpers.deduplication import deduplicate_docs
 # # from src.compression import compress_documents
@@ -48,7 +48,7 @@
 
 # ## Initialize the LLM with streaming enabled for real-time response generation
 # llm = ChatOpenAI(
-#     model=MODEL_NAME,  streaming=True
+#     model=MAIN_MODEL_NAME,  streaming=True
 # )
 
 # ## Function to create a retriever based on the selected document filter.

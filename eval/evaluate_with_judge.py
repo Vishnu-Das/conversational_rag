@@ -8,11 +8,11 @@ from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 
 from src.rag.service import stream_response
-from src.config import MODEL_NAME
+from src.config import MAIN_MODEL_NAME
 
 
 judge_llm = ChatOpenAI(
-    model=MODEL_NAME,
+    model=MAIN_MODEL_NAME,
     temperature=0
 )
 

@@ -24,10 +24,13 @@ from src.config import (
     # CHUNK_OVERLAP,
     VECTOR_DB_DIR,
     COLLECTION_NAME,
-    DATA_DIR
+    DATA_DIR,
+    EMBEDDING_MODEL_NAME
 )
 
-embeddings = OpenAIEmbeddings()
+embeddings = OpenAIEmbeddings(
+    model=EMBEDDING_MODEL_NAME
+)
 
 
 def load_and_split_documents(): ## This function loads documents from the specified directory, splits them into chunks, and returns the list of chunks.

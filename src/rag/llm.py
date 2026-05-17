@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
-from src.config import MODEL_NAME
+from src.config import MAIN_MODEL_NAME
 
 llm = ChatOpenAI(
-    model=MODEL_NAME,
+    model=MAIN_MODEL_NAME,
     streaming=True
 )

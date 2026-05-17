@@ -87,14 +87,27 @@ def stream_response(
 
     strategy_name = RETRIEVAL_STRATEGY
 
+    router_result = None
+
     if RETRIEVAL_STRATEGY == "auto":
-        strategy_name = route_retrieval_strategy(
+        router_result = route_retrieval_strategy(
             query=user_input,
             selected_document=selected_document
         )
-    print(f"Using retrieval strategy: {strategy_name}")
+        strategy_name = router_result.strategy
 
     debug_info.resolved_strategy = strategy_name
+
+    if router_result:
+        debug_info.router_reason = (
+            router_result.reason
+        )
+        debug_info.router_type = (
+            router_result.router_type
+        )
+        debug_info.router_confidence = (
+            router_result.confidence
+        )
 
     retrieval_strategy = (
         RetrievalStrategyFactory.get_strategy(
