@@ -28,6 +28,8 @@ from src.rag.routing.schemas import (
     LLMRouterOutput
 )
 
+from langsmith import traceable
+
 
 class LLMRouterStrategy(BaseRouterStrategy):
 
@@ -54,6 +56,10 @@ class LLMRouterStrategy(BaseRouterStrategy):
             RuleBasedRouterStrategy()
         )
 
+    @traceable(
+        name="LLM Router Decision",
+        run_type="chain",
+    )
     def route(
         self,
         query: str,

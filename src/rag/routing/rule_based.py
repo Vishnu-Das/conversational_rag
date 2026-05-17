@@ -13,6 +13,7 @@ from src.rag.retrieval.factory import (
 from src.rag.routing.base import (
     BaseRouterStrategy
 )
+from langsmith import traceable
 
 
 DOCUMENT_LEVEL_KEYWORDS = [
@@ -54,6 +55,10 @@ class RuleBasedRouterStrategy(
     BaseRouterStrategy
 ):
 
+    @traceable(
+        name="Rule-Based Router Decision",
+        run_type="chain",
+    )
     def route(
         self,
         query: str,
