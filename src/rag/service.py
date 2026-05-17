@@ -22,8 +22,12 @@ from src.rag.retrieval.factory import (
 
 from src.config import RETRIEVAL_STRATEGY
 
-from src.rag.retrieval.router import (
-    route_retrieval_strategy
+# from src.rag.retrieval.router import (
+#     route_retrieval_strategy
+# )
+
+from src.rag.routing.factory import (
+    RouterStrategyFactory
 )
 
 from src.rag.pipeline import (
@@ -90,7 +94,8 @@ def stream_response(
     router_result = None
 
     if RETRIEVAL_STRATEGY == "auto":
-        router_result = route_retrieval_strategy(
+        router = RouterStrategyFactory.get_router()
+        router_result = router.route(
             query=user_input,
             selected_document=selected_document
         )

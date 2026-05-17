@@ -17,8 +17,8 @@ from src.rag.service import (
     build_context
 )
 
-from src.rag.retrieval.router import (
-    route_retrieval_strategy
+from src.rag.routing.factory import (
+    RouterStrategyFactory
 )
 
 from pathlib import Path
@@ -72,10 +72,12 @@ def evaluate_strategy(
 
     if strategy_name == "auto":
 
-        actual_strategy = route_retrieval_strategy(
+        router = RouterStrategyFactory.get_router()
+        router_result = router.route(
             query=question,
             selected_document=selected_document
         )
+        actual_strategy = router_result.strategy
 
     strategy = (
         RetrievalStrategyFactory.get_strategy(

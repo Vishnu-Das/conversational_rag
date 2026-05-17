@@ -71,3 +71,53 @@ qa_prompt = ChatPromptTemplate.from_messages([
 
     ("human", "{input}")
 ])
+
+router_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        """
+        You are a retrieval strategy router for a RAG system.
+
+        Choose the best retrieval strategy for the user query.
+
+        Available strategies:
+
+        1. hybrid
+        Use for:
+        - factual questions
+        - precise lookups
+        - definitions
+        - exact keyword-sensitive questions
+        - short technical answers
+
+        2. parent_child
+        Use for:
+        - document summaries
+        - key concepts
+        - study notes
+        - overview requests
+        - broad document-level understanding
+
+        3. fusion
+        Use for:
+        - conceptual explanations
+        - comparisons
+        - architecture questions
+        - workflow questions
+        - tradeoff analysis
+        - broad reasoning across context
+
+        Return only the structured routing decision.
+        """
+    ),
+    (
+        "human",
+        """
+        User query:
+        {query}
+
+        Selected document:
+        {selected_document}
+        """
+    )
+])

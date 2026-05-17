@@ -40,6 +40,11 @@ EMBEDDING_MODEL_NAME = os.getenv(
     "text-embedding-3-small"
 )
 
+ROUTER_MODEL_NAME = os.getenv(
+    "ROUTER_MODEL_NAME",
+    "gpt-3.5-turbo"
+)
+
 # =========================
 # CHUNKING CONFIG
 # =========================
