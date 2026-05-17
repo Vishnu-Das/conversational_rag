@@ -3,17 +3,17 @@ name: Tests
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     env:
-      env:
-        OPENAI_API_KEY: dummy
-        LANGCHAIN_API_KEY: dummy
-        LANGCHAIN_TRACING_V2: "false"
-        LANGCHAIN_PROJECT: conversational-rag-tests
+      OPENAI_API_KEY: dummy
+      LANGCHAIN_API_KEY: dummy
+      LANGCHAIN_TRACING_V2: "false"
+      LANGCHAIN_PROJECT: conversational-rag-tests
 
     steps:
       - name: Checkout repository
