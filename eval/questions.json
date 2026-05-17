@@ -3,6 +3,7 @@
     "question": "What is multi-head attention?",
     "selected_document": "attention.pdf",
     "expected_source": "attention.pdf",
+    "expected_strategy": "hybrid",
     "expected_keywords": [
       "attention heads",
       "queries",
@@ -14,11 +15,36 @@
     "question": "Summarize this document",
     "selected_document": "attention.pdf",
     "expected_source": "attention.pdf",
+    "expected_strategy": "parent_child",
     "expected_keywords": [
       "transformer",
       "attention",
       "encoder",
       "decoder"
+    ]
+  },
+  {
+    "question": "Explain transformer architecture",
+    "selected_document": "attention.pdf",
+    "expected_source": "attention.pdf",
+    "expected_strategy": "fusion",
+    "expected_keywords": [
+      "encoder",
+      "decoder",
+      "attention",
+      "feed-forward"
+    ]
+  },
+  {
+    "question": "How does self-attention work?",
+    "selected_document": "attention.pdf",
+    "expected_source": "attention.pdf",
+    "expected_strategy": "fusion",
+    "expected_keywords": [
+      "queries",
+      "keys",
+      "values",
+      "attention"
     ]
   }
 ]

@@ -4,10 +4,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from src.rag.retrievers import get_history_aware_retriever
-from src.helpers.deduplication import deduplicate_docs
-from src.reranker import rerank_documents
-from src.config import RERANK_TOP_K
+from src.rag.service import stream_response
 
 
 def normalize_source_name(source: str) -> str:
@@ -23,44 +20,45 @@ def load_questions():
         return json.load(f)
 
 
+def drain_stream(stream):
+    """
+    Consume the stream so the full RAG pipeline runs.
+    Retrieval/debug info is already returned separately.
+    """
+    for _ in stream:
+        pass
+
+
 def evaluate_case(case):
     question = case["question"]
-    selected_document = case["selected_document"]
-    expected_source = case["expected_source"]
+    selected_document = case.get("selected_document")
+    expected_source = case.get("expected_source")
+    expected_strategy = case.get("expected_strategy")
     expected_keywords = case.get("expected_keywords", [])
 
-    retriever = get_history_aware_retriever(
-        selected_document
+    stream, sources, debug_info = stream_response(
+        user_input=question,
+        chat_history=[],
+        selected_document=selected_document,
     )
 
-    retrieved_docs = retriever.invoke({
-        "input": question,
-        "chat_history": []
-    })
-
-    dedup_docs = deduplicate_docs(
-        retrieved_docs
-    )
-
-    reranked_docs = rerank_documents(
-        question,
-        dedup_docs,
-        top_k=RERANK_TOP_K
-    )
+    drain_stream(stream)
 
     retrieved_sources = [
-        normalize_source_name(
-            doc.metadata.get("source", "")
-        )
-        for doc in reranked_docs
+        normalize_source_name(doc.metadata.get("source", ""))
+        for doc in sources
     ]
 
-    combined_text = " ".join([
+    combined_text = " ".join(
         doc.page_content.lower()
-        for doc in reranked_docs
-    ])
+        for doc in sources
+    )
 
-    source_match = expected_source in retrieved_sources
+    source_match = (
+        expected_source in retrieved_sources
+        if expected_source
+        else True
+    )
 
     keyword_matches = [
         keyword
@@ -71,37 +69,49 @@ def evaluate_case(case):
     keyword_score = (
         len(keyword_matches) / len(expected_keywords)
         if expected_keywords
-        else 0
+        else 1.0
     )
 
-    passed = source_match and keyword_score >= 0.5
+    strategy_match = (
+        debug_info.resolved_strategy == expected_strategy
+        if expected_strategy
+        else True
+    )
+
+    passed = (
+        source_match
+        and keyword_score >= 0.5
+        and strategy_match
+    )
 
     return {
         "question": question,
         "selected_document": selected_document,
+        "expected_strategy": expected_strategy,
+        "resolved_strategy": debug_info.resolved_strategy,
+        "router_type": debug_info.router_type,
+        "router_reason": debug_info.router_reason,
+        "router_confidence": debug_info.router_confidence,
         "retrieved_sources": retrieved_sources,
         "source_match": source_match,
         "keyword_matches": keyword_matches,
         "keyword_score": keyword_score,
-        "passed": passed
+        "strategy_match": strategy_match,
+        "retrieval_latency_ms": debug_info.retrieval_latency_ms,
+        "rerank_latency_ms": debug_info.rerank_latency_ms,
+        "total_latency_ms": debug_info.total_latency_ms,
+        "final_docs_count": debug_info.final_docs_count,
+        "passed": passed,
     }
 
 
 def main():
     cases = load_questions()
+    results = [evaluate_case(case) for case in cases]
 
-    results = []
+    passed_count = sum(1 for result in results if result["passed"])
 
-    for case in cases:
-        result = evaluate_case(case)
-        results.append(result)
-
-    passed_count = sum(
-        1 for result in results
-        if result["passed"]
-    )
-
-    print("\n===== RAG Retrieval Evaluation =====\n")
+    print("\n===== RAG Retrieval + Routing Evaluation =====\n")
 
     for result in results:
         status = "✅ PASS" if result["passed"] else "❌ FAIL"
@@ -109,14 +119,23 @@ def main():
         print(status)
         print("Question:", result["question"])
         print("Selected Document:", result["selected_document"])
+        print("Expected Strategy:", result["expected_strategy"])
+        print("Resolved Strategy:", result["resolved_strategy"])
+        print("Strategy Match:", result["strategy_match"])
+        print("Router Type:", result["router_type"])
+        print("Router Confidence:", result["router_confidence"])
+        print("Router Reason:", result["router_reason"])
         print("Retrieved Sources:", result["retrieved_sources"])
+        print("Source Match:", result["source_match"])
         print("Keyword Matches:", result["keyword_matches"])
         print("Keyword Score:", result["keyword_score"])
-        print("-" * 50)
+        print("Final Docs Count:", result["final_docs_count"])
+        print("Retrieval Latency ms:", result["retrieval_latency_ms"])
+        print("Rerank Latency ms:", result["rerank_latency_ms"])
+        print("Total Latency ms:", result["total_latency_ms"])
+        print("-" * 80)
 
-    print(
-        f"\nFinal Score: {passed_count}/{len(results)} passed"
-    )
+    print(f"\nFinal Score: {passed_count}/{len(results)} passed")
 
 
 if __name__ == "__main__":
