@@ -77,17 +77,358 @@ Streaming UI + Source Citations
 
 ---
 
-## Evaluation Pipelines
+## High-Level Architecture
 
-The project includes automated evaluation scripts for validating retrieval and answer quality.
+```text
+User Query
+   ↓
+Streamlit UI
+   ↓
+RAG Service
+   ↓
+Retrieval Strategy Resolver
+   ↓
+Router Strategy Factory
+   ├── Rule-Based Router
+   └── LLM Router
+   ↓
+RouterResult
+   ├── strategy
+   ├── reason
+   ├── confidence
+   └── router_type
+   ↓
+Retrieval Strategy Factory
+   ├── Hybrid Retrieval
+   ├── Parent-Child Retrieval
+   └── Fusion Retrieval
+   ↓
+Retrieved Documents
+   ↓
+Cross-Encoder Reranking
+   ↓
+Context Construction
+   ↓
+Prompt Construction
+   ↓
+LLM Response Generation
+   ↓
+Streaming Answer + Sources + Debug Info
+```
+
+---
+
+## Retrieval Strategies
+
+The project uses a strategy-based retrieval architecture. Each retrieval strategy is isolated behind a common interface and selected through a factory.
+
+```text
+RetrievalStrategyFactory
+├── HybridRetrievalStrategy
+├── ParentChildRetrievalStrategy
+└── FusionRetrievalStrategy
+```
+
+### 1. Hybrid Retrieval
+
+Hybrid retrieval combines semantic and keyword-based retrieval.
+
+It uses:
+
+- vector search
+- BM25 keyword search
+- multi-query retrieval
+- deduplication
+- cross-encoder reranking
+
+Best for:
+
+- factual lookups
+- exact questions
+- definition-style questions
+- keyword-sensitive queries
+
+Example:
+
+```text
+"What is multi-head attention?"
+```
+
+Expected strategy:
+
+```text
+hybrid
+```
+
+---
+
+### 2. Parent-Child Retrieval
+
+Parent-child retrieval uses smaller child chunks for retrieval and larger parent chunks for answer context.
+
+It uses:
+
+- parent chunks
+- child chunks
+- semantic search over child chunks
+- parent document reconstruction
+- reranking
+
+Best for:
+
+- summaries
+- document-level understanding
+- study notes
+- key concepts
+- broad document questions
+
+Example:
+
+```text
+"Summarize this document"
+```
+
+Expected strategy:
+
+```text
+parent_child
+```
+
+---
+
+### 3. Fusion Retrieval
+
+Fusion retrieval combines results from multiple retrieval strategies.
+
+It uses:
+
+- hybrid retrieval
+- parent-child retrieval
+- deduplication
+- reranking over combined results
+
+Best for:
+
+- conceptual questions
+- architecture explanations
+- workflow questions
+- comparative reasoning
+- broad contextual questions
+
+Example:
+
+```text
+"Explain transformer architecture"
+```
+
+Expected strategy:
+
+```text
+fusion
+```
+
+---
+
+## Automatic Retrieval Routing
+
+The system supports automatic routing using:
+
+```text
+RETRIEVAL_STRATEGY=auto
+```
+
+When auto mode is enabled, the system selects the best retrieval strategy based on the query intent.
+
+```text
+RouterStrategyFactory
+├── RuleBasedRouterStrategy
+└── LLMRouterStrategy
+```
+
+The router returns a structured `RouterResult`:
+
+```text
+RouterResult
+├── strategy
+├── reason
+├── confidence
+└── router_type
+```
+
+### Routing Behavior
+
+| Query Type | Selected Strategy |
+|---|---|
+| Factual lookup | Hybrid Retrieval |
+| Summary / study notes / key concepts | Parent-Child Retrieval |
+| Conceptual / architecture / workflow explanation | Fusion Retrieval |
+| Specific selected document with unclear intent | Parent-Child Retrieval |
+| Unknown query | Default configured strategy |
+
+Examples:
+
+```text
+"What is multi-head attention?"
+→ hybrid
+
+"Summarize this document"
+→ parent_child
+
+"Explain transformer architecture"
+→ fusion
+
+"How does self-attention work?"
+→ fusion
+```
+
+---
+
+## Rule-Based Router
+
+The rule-based router uses query patterns and keywords to choose the retrieval strategy.
+
+It is deterministic, fast, and useful as a safe fallback.
+
+Typical routing:
+
+```text
+factual query      → hybrid
+summary query      → parent_child
+conceptual query   → fusion
+```
+
+---
+
+## LLM Router
+
+The LLM router uses structured output to select a retrieval strategy.
+
+Instead of parsing raw text, the router expects a structured schema:
+
+```text
+LLMRouterOutput
+├── strategy
+├── reason
+└── confidence
+```
+
+If the LLM router fails or returns an invalid strategy, the system falls back to the rule-based router.
+
+Fallback output is marked as:
+
+```text
+router_type = llm_fallback
+```
+
+This makes the router safer and easier to debug.
+
+---
+
+## Strategy Configuration
+
+You can configure retrieval strategy through environment variables.
+
+### Fixed Strategy
+
+```env
+RETRIEVAL_STRATEGY=hybrid
+```
+
+```env
+RETRIEVAL_STRATEGY=parent_child
+```
+
+```env
+RETRIEVAL_STRATEGY=fusion
+```
+
+### Automatic Routing
+
+```env
+RETRIEVAL_STRATEGY=auto
+```
+
+---
+
+## LangSmith Observability
+
+The project includes LangSmith tracing for debugging and observability.
+
+A single query produces a trace tree like:
+
+```text
+RAG Stream Response
+├── Resolve Retrieval Strategy
+├── Rule-Based Router Decision / LLM Router Decision
+├── Retrieve Documents
+├── Rerank Retrieved Documents
+├── Build RAG Context
+├── Build QA Prompt
+└── LLM Response
+```
+
+This helps inspect:
+
+- selected retrieval strategy
+- router reason
+- router confidence
+- router type
+- retrieved documents
+- reranked documents
+- context sent to the LLM
+- retrieval latency
+- reranking latency
+- total response latency
+
+### LangSmith Environment Variables
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your_langsmith_api_key
+LANGSMITH_PROJECT=conversational-rag
+```
+
+For local development, keep real keys in `.env`.
+
+Do not commit real API keys.
+
+---
+
+## Evaluation
+
+The project includes automated evaluation scripts under:
+
+```text
+eval/
+├── evaluate_retrieval.py
+├── evaluate_answers.py
+└── evaluate_with_judge.py
+```
+
+The eval system validates:
+
+- retrieval quality
+- source matching
+- keyword coverage
+- selected strategy
+- router correctness
+- answer quality
+- groundedness
+- hallucination risk
+- latency/debug information
+
+---
 
 ### Retrieval Evaluation
 
 Validates:
-- retrieval accuracy
-- document filtering
-- reranking quality
-- expected keyword coverage
+
+- whether the expected source was retrieved
+- whether expected keywords appear in retrieved context
+- whether the router selected the expected strategy
+- retrieval and reranking latency
+
+Run:
 
 ```bash
 uv run python eval/evaluate_retrieval.py
@@ -98,9 +439,14 @@ uv run python eval/evaluate_retrieval.py
 ### Answer Evaluation
 
 Validates:
+
 - generated answer quality
-- semantic coverage
-- source grounding
+- keyword coverage
+- selected strategy
+- source count
+- latency/debug information
+
+Run:
 
 ```bash
 uv run python eval/evaluate_answers.py
@@ -110,11 +456,14 @@ uv run python eval/evaluate_answers.py
 
 ### LLM-as-a-Judge Evaluation
 
-Uses an LLM to evaluate:
+Uses an LLM judge to evaluate:
+
 - correctness
 - groundedness
 - hallucination risk
 - completeness
+
+Run:
 
 ```bash
 uv run python eval/evaluate_with_judge.py
@@ -122,27 +471,119 @@ uv run python eval/evaluate_with_judge.py
 
 ---
 
-## Observability
+## Testing
 
-Integrated LangSmith tracing for:
+The project includes unit tests for the core RAG architecture.
 
-- query rewriting
-- retrieval inspection
-- reranking analysis
-- prompt debugging
-- token usage
-- latency analysis
-- end-to-end chain tracing
+Current test areas:
+
+```text
+tests/
+└── rag/
+    ├── models/
+    │   └── test_router_result.py
+    ├── retrieval/
+    │   └── test_retrieval_factory.py
+    ├── routing/
+    │   ├── test_llm_router.py
+    │   ├── test_router_factory.py
+    │   └── test_rule_based_router.py
+    ├── test_service.py
+    └── test_service_utils.py
+```
+
+Covered:
+
+| Area | Status |
+|---|---|
+| RouterResult model | Tested |
+| Rule-based router | Tested |
+| LLM router | Tested with mocks |
+| LLM router fallback | Tested |
+| Router factory | Tested |
+| Retrieval factory | Tested with mocks |
+| RAG service orchestration | Tested |
+| Service utility functions | Tested |
+
+Run tests:
+
+```bash
+uv run pytest
+```
+
+Verbose mode:
+
+```bash
+uv run pytest -v
+```
+
+The tests are designed as unit tests and do not make real OpenAI, ChromaDB, or LangSmith calls.
+
+---
+
+## GitHub Actions
+
+The repository includes a GitHub Actions workflow for running tests automatically.
+
+Workflow file:
+
+```text
+.github/workflows/tests.yml
+```
+
+The workflow runs on:
+
+- push
+- pull request
+- manual dispatch
+
+Example workflow:
+
+```yaml
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      OPENAI_API_KEY: dummy
+      LANGCHAIN_API_KEY: dummy
+      LANGCHAIN_TRACING_V2: "false"
+      LANGCHAIN_PROJECT: conversational-rag-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run tests
+        run: uv run pytest
+```
+
+Real API tokens are not required for unit tests because external calls are mocked.
 
 ---
 
 ## Running Locally
 
-### 1. Clone Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Vishnu-Das/conversational_rag.git
-
 cd conversational_rag
 ```
 
@@ -154,14 +595,29 @@ cd conversational_rag
 OPENAI_API_KEY=your_openai_api_key
 HF_TOKEN=your_huggingface_token
 
-LANGCHAIN_API_KEY=your_langsmith_api_key
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_PROJECT=conversational-rag
+RETRIEVAL_STRATEGY=auto
+ROUTER_TYPE=rule_based
+
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your_langsmith_api_key
+LANGSMITH_PROJECT=conversational-rag
+```
+
+For LLM-based routing:
+
+```env
+ROUTER_TYPE=llm
+```
+
+For rule-based routing:
+
+```env
+ROUTER_TYPE=rule_based
 ```
 
 ---
 
-### 3. Install Dependencies
+### 3. Install dependencies
 
 ```bash
 uv sync
@@ -169,17 +625,23 @@ uv sync
 
 ---
 
-### 4. Run Application
+### 4. Run the app
 
 ```bash
 uv run streamlit run app.py
+```
+
+Open:
+
+```text
+http://localhost:8501
 ```
 
 ---
 
 ## Running with Docker
 
-### Build and Start
+Build and start:
 
 ```bash
 docker compose up --build
@@ -195,21 +657,24 @@ http://localhost:8501
 
 ## Document Ingestion
 
-Place PDFs inside:
+Place PDF files inside:
 
 ```text
 src/data/
 ```
 
-If `chroma_db/` is empty, ingestion runs automatically during startup.
+If the ChromaDB store is empty, ingestion runs during startup.
 
----
-
-### Manual Bulk Re-Ingestion
+Manual ingestion:
 
 ```bash
-docker compose exec conversational-rag \
-.venv/bin/python -m src.ingest
+uv run python -m src.ingest
+```
+
+With Docker:
+
+```bash
+docker compose exec conversational-rag .venv/bin/python -m src.ingest
 ```
 
 ---
@@ -352,53 +817,48 @@ Retrieval Strategy Factory
 
 ---
 
-## Strategy Configuration
-
-Retrieval strategy can be configured dynamically using environment variables.
-
-### Fixed Strategy
-
-```env
-RETRIEVAL_STRATEGY=hybrid
-```
-
-```env
-RETRIEVAL_STRATEGY=parent_child
-```
-
-```env
-RETRIEVAL_STRATEGY=fusion
-```
-
----
-
-### Automatic Routing
-
-```env
-RETRIEVAL_STRATEGY=auto
-```
-
-The router automatically selects the optimal retrieval strategy based on query intent.
-
----
-
 ## Project Structure
 
 ```text
-src/
-├── rag/            # Retrieval and generation pipeline
-├── reranker/       # Cross-encoder reranking
-├── ui/             # Streamlit UI
-├── services/       # Upload/session services
-├── helpers/        # Utility helpers
-├── utils/          # Citation formatting
-├── data/           # PDF documents
-└── vectorstore.py  # ChromaDB integration
-
-eval/
-├── evaluate_retrieval.py
-├── evaluate_answers.py
-└── evaluate_with_judge.py
+conversational_rag/
+├── app.py
+├── pyproject.toml
+├── Dockerfile
+├── docker-compose.yml
+├── README.md
+├── eval/
+│   ├── questions.json
+│   ├── evaluate_retrieval.py
+│   ├── evaluate_answers.py
+│   └── evaluate_with_judge.py
+├── tests/
+│   └── rag/
+│       ├── models/
+│       ├── retrieval/
+│       ├── routing/
+│       ├── test_service.py
+│       └── test_service_utils.py
+└── src/
+    ├── config.py
+    ├── ingest.py
+    └── rag/
+        ├── service.py
+        ├── prompts.py
+        ├── llm.py
+        ├── debug.py
+        ├── models/
+        ├── routing/
+        │   ├── factory.py
+        │   ├── rule_based.py
+        │   ├── llm.py
+        │   └── schemas.py
+        ├── retrieval/
+        │   ├── factory.py
+        │   ├── hybrid.py
+        │   ├── parent_child.py
+        │   └── fusion.py
+        ├── retrievers.py
+        └── pipeline.py
 ```
 
 ---
@@ -416,7 +876,6 @@ eval/
 
 ## Future Improvements
 
-- Parent-child retrieval
 - Contextual compression
 - Async ingestion
 - FastAPI backend
@@ -425,6 +884,35 @@ eval/
 - Multi-user authentication
 
 ---
+
+## Introduction to Retrieval Inspector in the app
+
+<img width="1385" height="1270" alt="localhost_8501_ (5)" src="https://github.com/user-attachments/assets/a5c80503-08b3-4274-87a4-d45f4e62a757" />
+
+---
+
+<img width="885" height="756" alt="localhost_8501_ (7)" src="https://github.com/user-attachments/assets/32d45d7b-752c-4d5b-bec4-87c7c45a29b0" />
+
+---
+
+The application includes a Retrieval Inspector to make the RAG pipeline easier to debug and explain.
+
+The inspector shows how the system selected a retrieval strategy, which documents were retrieved, how reranking changed the result order, and what final context was sent to the LLM.
+
+This is useful for debugging questions like:
+
+- Why did the system choose this retrieval strategy?
+- Which documents were retrieved before reranking?
+- Which documents were finally used for answer generation?
+- Did the correct document appear in the retrieved results?
+- Did reranking improve or hurt the final context?
+- How much time was spent in retrieval and reranking?
+
+### How to Enable
+- just pass ```ENABLE_RETRIEVAL_INSPECTOR=true``` in the environment or put in the ```.env``` file
+---
+
+
 
 ## License
 
