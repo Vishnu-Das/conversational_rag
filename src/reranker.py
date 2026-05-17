@@ -4,6 +4,9 @@ from huggingface_hub import login
 from langsmith import traceable
 import streamlit as st
 # from src.config import HF_TOKEN
+from src.rag.models import (
+    RankedDocument
+)
 
 
 # if HF_TOKEN:
@@ -49,3 +52,49 @@ def rerank_documents(
         doc for doc, score in scored_docs[:top_k]
     ]
     return reranked_docs
+
+@traceable(name="Ranked Documents")
+def rerank_documents_with_scores(
+    query,
+    documents,
+    top_k=4
+):
+
+    if not documents:
+        return []
+
+    pairs = [
+        (
+            query,
+            doc.page_content
+        )
+        for doc in documents
+    ]
+
+    scores = reranker_model.predict(
+        pairs
+    )
+
+    ranked_documents = [
+        RankedDocument(
+            document=doc,
+            score=float(score),
+            retrieval_strategy=doc.metadata.get(
+                "retrieval_strategy"
+            ),
+            retrieval_source=doc.metadata.get(
+                "retrieval_source"
+            )
+        )
+        for doc, score in zip(
+            documents,
+            scores
+        )
+    ]
+
+    ranked_documents.sort(
+        key=lambda item: item.score,
+        reverse=True
+    )
+
+    return ranked_documents[:top_k]

@@ -16,6 +16,9 @@ from src.utils.citations import (
     extract_sources
 )
 
+from src.ui.retrieval_inspector import (
+    render_retrieval_inspector
+)
 
 def render_chat_history():
 
@@ -100,10 +103,14 @@ def handle_chat_input(selected_document):
         unsafe_allow_html=True
     )
 
-    stream, sources = stream_response(
+    stream, sources, debug_info  = stream_response(
         user_input,
         st.session_state.chat_history,
         selected_document
+    )
+
+    st.session_state.last_retrieval_debug = (
+        debug_info
     )
 
     assistant_response = ""
@@ -173,6 +180,10 @@ def handle_chat_input(selected_document):
                     source_html,
                     unsafe_allow_html=True
                 )
+
+    render_retrieval_inspector(
+        st.session_state.get("last_retrieval_debug")
+    )
 
     save_message(
         session_id,

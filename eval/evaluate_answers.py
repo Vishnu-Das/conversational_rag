@@ -28,7 +28,7 @@ def evaluate_answer(case):
     selected_document = case["selected_document"]
     expected_keywords = case.get("expected_keywords", [])
 
-    stream, sources = stream_response(
+    stream, sources, debug_info = stream_response(
         user_input=question,
         chat_history=[],
         selected_document=selected_document

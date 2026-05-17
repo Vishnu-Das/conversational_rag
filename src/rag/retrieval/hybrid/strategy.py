@@ -36,5 +36,8 @@ class HybridRetrievalStrategy(BaseRetrievalStrategy):
             "input": query,
             "chat_history": chat_history
         })
+        for doc in docs:
+            doc.metadata["retrieval_strategy"] = "hybrid"
+            doc.metadata["retrieval_source"] = "hybrid"
 
         return docs

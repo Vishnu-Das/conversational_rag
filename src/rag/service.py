@@ -1,4 +1,10 @@
 from typing import List
+import time
+
+from src.rag.debug import (
+    RetrievalDebugInfo,
+    build_doc_debug_entry
+)
 
 from langchain_core.messages import BaseMessage
 from langsmith import traceable
@@ -14,12 +20,15 @@ from src.rag.retrieval.factory import (
     RetrievalStrategyFactory
 )
 
-from src.rag.pipeline import process_documents
-
 from src.config import RETRIEVAL_STRATEGY
 
 from src.rag.retrieval.router import (
     route_retrieval_strategy
+)
+
+from src.rag.pipeline import (
+    # process_documents,
+    process_documents_with_scores
 )
 
 
@@ -69,6 +78,13 @@ def stream_response(
     chat_history: List[BaseMessage],
     selected_document: str = None
 ):
+    debug_info = RetrievalDebugInfo(
+        query=user_input,
+        selected_document=selected_document,
+        requested_strategy=RETRIEVAL_STRATEGY
+    )
+    total_start = time.perf_counter()
+
     strategy_name = RETRIEVAL_STRATEGY
 
     if RETRIEVAL_STRATEGY == "auto":
@@ -78,11 +94,15 @@ def stream_response(
         )
     print(f"Using retrieval strategy: {strategy_name}")
 
+    debug_info.resolved_strategy = strategy_name
+
     retrieval_strategy = (
         RetrievalStrategyFactory.get_strategy(
             strategy_name
         )
     )
+
+    retrieval_start = time.perf_counter()
 
     retrieved_docs = retrieval_strategy.retrieve(
         query=user_input,
@@ -90,10 +110,51 @@ def stream_response(
         selected_document=selected_document
     )
 
-    docs = process_documents(
-        user_input,
+    debug_info.retrieval_latency_ms = round((time.perf_counter() - retrieval_start) * 1000,2)
+
+    debug_info.retrieved_docs_count = len(
         retrieved_docs
     )
+
+    debug_info.retrieved_docs = [
+        build_doc_debug_entry(
+            doc,
+            retrieval_source=doc.metadata.get(
+                "retrieval_strategy"
+            )
+        )
+        for doc in retrieved_docs
+    ]
+
+    rerank_start = time.perf_counter()
+
+    ranked_documents = (
+        process_documents_with_scores(
+            user_input,
+            retrieved_docs
+        )
+    )
+
+    docs = [
+        ranked_doc.document
+        for ranked_doc in ranked_documents
+    ]
+    
+    debug_info.rerank_latency_ms = round((time.perf_counter() - rerank_start) * 1000,2)
+
+    debug_info.final_docs_count = len(docs)
+
+    debug_info.final_docs = [
+        build_doc_debug_entry(
+            ranked_doc.document,
+            score=round(
+                ranked_doc.score,
+                4
+            ),
+            retrieval_source=ranked_doc.retrieval_source
+        )
+        for ranked_doc in ranked_documents
+    ]
 
     # print("\n========== FINAL DOCS ==========")
     # for doc in docs:
@@ -112,4 +173,6 @@ def stream_response(
 
     stream = llm.stream(messages)
 
-    return stream, docs
+    debug_info.total_latency_ms = round((time.perf_counter() - total_start) * 1000,2)
+
+    return stream, docs, debug_info

@@ -107,4 +107,8 @@ class ParentChildRetrievalStrategy(
             query
         )
 
+        for doc in docs:
+            doc.metadata["retrieval_strategy"] = "parent_child"
+            doc.metadata["retrieval_source"] = "parent_child"
+
         return docs

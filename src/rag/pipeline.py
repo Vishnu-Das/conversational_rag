@@ -5,7 +5,8 @@ from src.helpers.deduplication import (
 )
 
 from src.reranker import (
-    rerank_documents
+    rerank_documents,
+    rerank_documents_with_scores
 )
 
 from src.config import (
@@ -37,3 +38,21 @@ def process_documents(
     # )
 
     return reranked_docs
+
+@traceable(name="Process Documents with Scores")
+def process_documents_with_scores(
+    query,
+    documents
+):
+
+    dedup_docs = deduplicate_docs(
+        documents
+    )
+
+    ranked_documents = rerank_documents_with_scores(
+        query,
+        dedup_docs,
+        top_k=RERANK_TOP_K
+    )
+
+    return ranked_documents

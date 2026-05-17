@@ -97,7 +97,7 @@ def evaluate_case(case):
         case["selected_document"]
     )
 
-    stream, sources = stream_response(
+    stream, sources, debug_info = stream_response(
         user_input=question,
         chat_history=[],
         selected_document=selected_document

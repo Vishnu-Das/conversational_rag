@@ -65,11 +65,19 @@ class FusionRetrievalStrategy(
             selected_document=selected_document
         )
 
+        for doc in hybrid_docs:
+            doc.metadata["retrieval_strategy"] = "fusion"
+            doc.metadata["retrieval_source"] = "hybrid"
+
         parent_child_docs = parent_child_strategy.retrieve(
             query=query,
             chat_history=chat_history,
             selected_document=selected_document
         )
+
+        for doc in parent_child_docs:
+            doc.metadata["retrieval_strategy"] = "fusion"
+            doc.metadata["retrieval_source"] = "parent_child"
 
         combined_docs = [
             *hybrid_docs,
